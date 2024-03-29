@@ -7,9 +7,9 @@ import { Request, Response } from 'express';
 
 const LoginUser = catchAsync(async (req, res) => {
     const { token, userData, refreshToken } = await Authservice.LoginIntoDB(req.body)
-    const { email, id, name, status, role } = userData;
+    const { email, id, name } = userData;
     const userdata2 = {
-        id, name, email, status, role
+        id, name, email
     }
 
     res.cookie("refreshToken", refreshToken, {
@@ -18,9 +18,9 @@ const LoginUser = catchAsync(async (req, res) => {
     })
 
     sendResponse(res, {
-        statusCode: 201,
+        statusCode: 200,
         success: true,
-        message: 'Logged successfully',
+        message: 'User logged in successfully',
         data: {
             userdata2,
             token,

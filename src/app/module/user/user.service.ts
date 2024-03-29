@@ -1,10 +1,11 @@
 import bcrypt from 'bcrypt';
 import config from "../../../config";
 import prisma from '../../../utils/prisma';
-import { BloodGroup, Prisma, Role } from '@prisma/client';
+import { BloodGroup, Prisma, Role, UserProfile } from '@prisma/client';
 import { IPaginationOptions, Tpayload } from './user.interface';
 import { paginationHelper } from '../../../helper/paginationHelper';
 import { userSearchAbleFields } from './user.constant';
+import { TToken } from '../Auth/auth.interface';
 
 const createUserIntoDB = async (payload: Tpayload) => {
 
@@ -29,7 +30,6 @@ const createUserIntoDB = async (payload: Tpayload) => {
         role: true,
         bloodType: true,
         location: true,
-        profile: true
       }
     },
     );
@@ -64,18 +64,6 @@ const getdonorUserIntoDB = async (params: any, options: IPaginationOptions) => {
       }))
     })
   };
-
-
-  // if (Object.keys(filterData).length > 0) {
-  //   andCondions.push({
-  //     AND: Object.keys(filterData).map(key => ({
-  //       [key]: {
-  //         equals: (filterData as any)[key]
-  //       }
-  //     }))
-  //   })
-  // };
-
 
 
   if (Object.keys(filterData).length > 0) {
@@ -126,9 +114,13 @@ const getdonorUserIntoDB = async (params: any, options: IPaginationOptions) => {
       updatedAt: true,
       profile: {
         select: {
+          id:true,
+          userId:true,
           bio: true,
           age: true,
           lastDonationDate: true,
+          createdAt: true,
+          updatedAt: true,
         }
       }
     }
@@ -149,6 +141,61 @@ const getdonorUserIntoDB = async (params: any, options: IPaginationOptions) => {
 };
 
 
+const getUserProfileIntoDB = async (payload: TToken) => {
+  const result = await prisma.user.findUniqueOrThrow({
+    where: {
+      id: payload.id,
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      status: true,
+      location: true,
+      bloodType: true,
+      availability: true,
+      createdAt: true,
+      updatedAt: true,
+      profile: true,
+    }
+  })
+  return result;
+
+};
+const UpdateUserProfileIntoDB = async (user: TToken, payload: Partial<UserProfile>) => {
+  const result = await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      profile: {
+        update: {
+          bio: payload.bio,
+          age: payload.age,
+          lastDonationDate: payload.lastDonationDate,
+        }
+      },
+    },
+    select:{
+      profile: {
+        select: {
+          id:true,
+          userId:true,
+          bio: true,
+          age: true,
+          lastDonationDate: true,
+          createdAt:true,
+          updatedAt:true,
+        }
+      }
+    }
+
+  })
+  return result;
+
+};
+
 
 
 
@@ -156,4 +203,6 @@ const getdonorUserIntoDB = async (params: any, options: IPaginationOptions) => {
 export const userservise = {
   createUserIntoDB,
   getdonorUserIntoDB,
+  getUserProfileIntoDB,
+  UpdateUserProfileIntoDB,
 };

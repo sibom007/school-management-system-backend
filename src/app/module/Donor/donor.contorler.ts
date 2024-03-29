@@ -6,9 +6,9 @@ const createRequestADonor = catchAsync(async (req, res) => {
     const user =req.user
     const result = await DonorRequestservice.DonorRequestIntoDB(user,req.body);
     sendResponse(res, {
-        statusCode: 200,
+        statusCode: 201,
         success: true,
-        message: 'Donation requests retrieved successfully',
+        message: 'Request successfully made',
         data: result,
     });
 });
