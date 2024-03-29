@@ -6,7 +6,6 @@ import { userservise } from './user.service';
 
 const createUser = catchAsync(async (req, res) => {
   const { user, userProfile } = await userservise.createUserIntoDB(req.body);
-
   sendResponse(res, {
     statusCode: 201,
     success: true,
@@ -28,7 +27,6 @@ const getdonorUser = catchAsync(async (req, res) => {
 });
 
 const getUserProfile = catchAsync(async (req, res) => {
-
   const result = await userservise.getUserProfileIntoDB(req.user);
   sendResponse(res, {
     statusCode: 201,

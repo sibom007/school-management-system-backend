@@ -11,7 +11,6 @@ const LoginUser = catchAsync(async (req, res) => {
     const userdata2 = {
         id, name, email
     }
-
     res.cookie("refreshToken", refreshToken, {
         secure: false,
         httpOnly: true
