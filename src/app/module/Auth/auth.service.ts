@@ -22,6 +22,7 @@ const LoginIntoDB = async (payload: Tlogin) => {
     }
 
     const token = jwtHelpers.generateToken({
+        id: userData.id,
         name: userData.name,
         email: userData.email,
         role: userData.role
@@ -32,6 +33,7 @@ const LoginIntoDB = async (payload: Tlogin) => {
     );
 
     const refreshToken = jwtHelpers.generateToken({
+        id: userData.id,
         name: userData.name,
         email: userData.email,
         role: userData.role

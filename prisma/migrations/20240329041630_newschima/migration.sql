@@ -1,11 +1,11 @@
 -- CreateEnum
-CREATE TYPE "BloodGroup" AS ENUM ('A_POSITIVE', 'B_POSITIVE', 'A_NEGATIVE', 'B_NEGATIVE', 'AB_POSITIVE', 'AB_NEGATIVE', 'O_POSITIVE', 'O_NEGATIVE');
+CREATE TYPE "BloodGroup" AS ENUM ('A+', 'B+', 'A-', 'B-', 'AB+', 'AB-', 'O+', 'O-');
 
 -- CreateEnum
 CREATE TYPE "RequestStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
 
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('DONOR', 'REQUESTER', 'ADMIN');
+CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN');
 
 -- CreateEnum
 CREATE TYPE "UserStatus" AS ENUM ('ACTIVE', 'BlOCKED');
@@ -59,9 +59,6 @@ CREATE TABLE "UserProfile" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Request_donorId_key" ON "Request"("donorId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "UserProfile_userId_key" ON "UserProfile"("userId");

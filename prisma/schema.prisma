@@ -22,14 +22,16 @@ model User {
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   profile      UserProfile?
-  donor        Request?  
-  requesterRequests Request[] @relation("RequesterRequest")
+  donorOf     Request[] @relation("Donor")
+  requesterOf Request[] @relation("Requester")
 }
 
 model Request {
   id              String      @id @default(uuid())
-  donorId         String @unique
-  requesterId     String 
+  donor          User       @relation("Donor", fields: [donorId], references: [id])
+  donorId        String
+  requester      User       @relation("Requester", fields: [requesterId], references: [id])
+  requesterId    String
   phoneNumber     String
   dateOfDonation  String
   hospitalName    String
@@ -38,8 +40,6 @@ model Request {
   requestStatus   RequestStatus      @default(PENDING)
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
-  donor           User        @relation(fields: [donorId], references: [id])
-  requester       User        @relation("RequesterRequest", fields: [requesterId], references: [id])
 }
 
 model UserProfile {
@@ -70,8 +70,7 @@ enum RequestStatus {
     REJECTED
 }
 enum Role {
-  DONOR
-  REQUESTER
+  USER
   ADMIN
 }
 

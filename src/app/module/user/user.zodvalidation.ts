@@ -10,7 +10,6 @@ const createUser = z.object({
         email: z.string({
             required_error: 'Email is required'
         }).email('Invalid email'),
-        role: z.enum(["DONOR", "REQUESTER", "ADMIN"]),
         status: z.enum(["ACTIVE", "BlOCKED"]).optional(),
         bloodType: z.enum(["A_POSITIVE",
             "B_POSITIVE",

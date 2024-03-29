@@ -15,7 +15,7 @@ const createUserIntoDB = async (payload: Tpayload) => {
       payload.password,
       Number(config.bcrypt_salt_rounds),
     ),
-    role: payload.User.role as Role,
+    role: payload.User.role as Role || Role.USER ,
     bloodType: payload.User.bloodType as BloodGroup,
     location: payload.User.location,
   }
@@ -52,7 +52,6 @@ const createUserIntoDB = async (payload: Tpayload) => {
 const getdonorUserIntoDB = async (params: any, options: IPaginationOptions) => {
   const { searchTerm, ...filterData } = params;
   const { page, limit, skip } = paginationHelper.calculatePagination(options);
-console.log(filterData);
   const andCondions: Prisma.UserWhereInput[] = [];
 
   if (params.searchTerm) {
