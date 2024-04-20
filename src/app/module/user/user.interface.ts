@@ -2,11 +2,11 @@
 
 export type Tpayload = {
     password: string
-    User: User
+    User: TUser
 }
 
 
-export type User = {
+export type TUser = {
     name: string;
     email: string;
     password: string;

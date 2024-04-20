@@ -8,19 +8,18 @@ import { DonorRoutes } from '../app/module/Donor/donor.routs';
 const router = Router();
 
 const moduleRoutes = [
-    {
-        path: '/',
-        route: AuthRoutes,
-    },
-    {
-        path: '/',
-        route: UserRoutes,
-    },
-    {
-        path: '/',
-        route: DonorRoutes,
-    },
-
+  {
+    path: "/",
+    route: AuthRoutes,
+  },
+  {
+    path: "/",
+    route: UserRoutes,
+  },
+  {
+    path: "/",
+    route: DonorRoutes,
+  },
 ];
 
 moduleRoutes.forEach((route) => router.use(route.path, route.route));

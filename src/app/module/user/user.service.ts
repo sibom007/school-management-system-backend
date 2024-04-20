@@ -2,23 +2,23 @@ import bcrypt from 'bcrypt';
 import config from "../../../config";
 import prisma from '../../../utils/prisma';
 import { BloodGroup, Prisma, Role, UserProfile } from '@prisma/client';
-import { IPaginationOptions, Tpayload } from './user.interface';
+import { IPaginationOptions, TUser } from './user.interface';
 import { paginationHelper } from '../../../helper/paginationHelper';
 import { userSearchAbleFields } from './user.constant';
 import { TToken } from '../Auth/auth.interface';
 
-const createUserIntoDB = async (payload: Tpayload) => {
-
+const createUserIntoDB = async (payload: TUser) => {
+console.log(payload);
   const UserData = {
-    name: payload.User.name,
-    email: payload.User.email,
+    name: payload.name,
+    email: payload.email,
     password: await bcrypt.hash(
       payload.password,
       Number(config.bcrypt_salt_rounds),
     ),
-    role: payload.User.role as Role || Role.USER ,
-    bloodType: payload.User.bloodType as BloodGroup,
-    location: payload.User.location,
+    role: payload.role as Role || Role.USER ,
+    bloodType: payload.bloodType as BloodGroup,
+    location: payload.location,
   }
   const result = await prisma.$transaction(async (TC) => {
     const user = await TC.user.create({
@@ -37,9 +37,9 @@ const createUserIntoDB = async (payload: Tpayload) => {
     const userProfile = await TC.userProfile.create({
       data: {
         userId: user.id,
-        bio: payload.User.bio,
-        age: payload.User.age,
-        lastDonationDate: payload.User.lastDonationDate,
+        bio: payload.bio,
+        age: payload.age,
+        lastDonationDate: payload.lastDonationDate,
       }
     })
     return { user, userProfile };

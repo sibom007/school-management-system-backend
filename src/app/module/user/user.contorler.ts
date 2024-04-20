@@ -5,6 +5,7 @@ import { userFilterableFields } from './user.constant';
 import { userservise } from './user.service';
 
 const createUser = catchAsync(async (req, res) => {
+  console.log(req.body);
   const { user, userProfile } = await userservise.createUserIntoDB(req.body);
   sendResponse(res, {
     statusCode: 201,
