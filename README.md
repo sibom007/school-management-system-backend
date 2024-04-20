@@ -55,11 +55,15 @@
 }
 
 
-## [Live-link](https://asssmient-5-server.vercel.app)
+## [Live-link](https://assmient-8.vercel.app/)
 
-## create-user-URL:/register [User can create ther accound]
-
-## Login-user-URL:/login [User can Login there accound]
+## create-user-URL:https://assmient-8.vercel.app/api/register 
+## Login-user-URL:https://assmient-8.vercel.app/api/login 
+## donor-listr-URL:https://assmient-8.vercel.app/api/donor-list
+## donation-request-URL:https://assmient-8.vercel.app/api/donation-request
+## donation-request-URL:https://assmient-8.vercel.app/api/donation-request/donnerId
+## my-profile-URL:https://assmient-8.vercel.app/api/my-profile
+## my-profile-URL:https://assmient-8.vercel.app/api/my-profile
 
 
 ## Postman Documentation
