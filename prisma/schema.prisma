@@ -17,6 +17,7 @@ model User {
   role         Role    
   status       UserStatus @default(ACTIVE)
   bloodType    BloodGroup
+  donateBlood  BloodDonate @default(NO)
   location     String
   availability Boolean     @default(true)
   createdAt    DateTime    @default(now())
@@ -69,6 +70,12 @@ enum RequestStatus {
    APPROVED
     REJECTED
 }
+
+enum BloodDonate {
+  YES
+  NO
+}
+
 enum Role {
   USER
   ADMIN

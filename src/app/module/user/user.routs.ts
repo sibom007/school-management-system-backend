@@ -9,23 +9,25 @@ import { Role } from '@prisma/client';
 const router = express.Router();
 
 router.post(
-  '/register',
+  "/register",
   validateRequest(userValidation.createUser),
   UserControllers.createUser
 );
-router.get(
-  '/donor-list',
-  UserControllers.getdonorUser
-);
+router.get("/donor-list", UserControllers.getdonorUser);
 router.put(
-  '/my-profile',
+  "/my-profile",
   auth(Role.USER, Role.ADMIN),
   UserControllers.updateUserProfile
 );
 router.get(
-  '/my-profile',
+  "/my-profile",
   auth(Role.USER, Role.ADMIN),
   UserControllers.getUserProfile
+);
+router.get(
+  "/donner-details/:id",
+  // auth(Role.USER, Role.ADMIN),
+  UserControllers.getSingleDonner
 );
 
 

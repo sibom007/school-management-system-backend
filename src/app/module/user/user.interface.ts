@@ -7,16 +7,17 @@ export type Tpayload = {
 
 
 export type TUser = {
-    name: string;
-    email: string;
-    password: string;
-    bloodType: string;
-    location: string;
-    age: number;
-    role: string;
-    bio: string;
-    lastDonationDate: string;
-}
+  name: string;
+  email: string;
+  password: string;
+  bloodType: string;
+  location: string;
+  age: number;
+  role: string;
+  bio: string;
+  donateBlood: "YES" | "NO";
+  lastDonationDate: string;
+};
 
 
 

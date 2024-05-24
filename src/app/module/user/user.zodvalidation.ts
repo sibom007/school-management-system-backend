@@ -24,7 +24,6 @@ const createUser = z.object({
   ]),
 
   location: z.string(),
-  availability: z.boolean().default(true),
 });
 
 

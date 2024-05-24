@@ -6,20 +6,32 @@ import { IPaginationOptions, TUser } from './user.interface';
 import { paginationHelper } from '../../../helper/paginationHelper';
 import { userSearchAbleFields } from './user.constant';
 import { TToken } from '../Auth/auth.interface';
+import AppError from "../../Error/AppError";
 
 const createUserIntoDB = async (payload: TUser) => {
-console.log(payload);
   const UserData = {
     name: payload.name,
     email: payload.email,
     password: await bcrypt.hash(
       payload.password,
-      Number(config.bcrypt_salt_rounds),
+      Number(config.bcrypt_salt_rounds)
     ),
-    role: payload.role as Role || Role.USER ,
+    role: (payload.role as Role) || Role.USER,
     bloodType: payload.bloodType as BloodGroup,
     location: payload.location,
+    donateBlood: payload.donateBlood,
+  };
+
+  const email = await prisma.user.findUnique({
+    where: {
+      email: payload.email,
+    },
+  });
+
+  if (email) {
+    throw new AppError(400, "Email already exist");
   }
+
   const result = await prisma.$transaction(async (TC) => {
     const user = await TC.user.create({
       data: UserData,
@@ -30,24 +42,21 @@ console.log(payload);
         role: true,
         bloodType: true,
         location: true,
-      }
-    },
-    );
-
+        donateBlood: true,
+      },
+    });
     const userProfile = await TC.userProfile.create({
       data: {
         userId: user.id,
         bio: payload.bio,
         age: payload.age,
         lastDonationDate: payload.lastDonationDate,
-      }
-    })
+      },
+    });
     return { user, userProfile };
-  })
-
-  return result
+  });
+  return result;
 };
-
 
 const getdonorUserIntoDB = async (params: any, options: IPaginationOptions) => {
   const { searchTerm, ...filterData } = params;
@@ -59,47 +68,97 @@ const getdonorUserIntoDB = async (params: any, options: IPaginationOptions) => {
       OR: userSearchAbleFields.map((field) => ({
         [field]: {
           contains: params.searchTerm,
-          mode: 'insensitive'
-        }
-      }))
-    })
-  };
-
+          mode: "insensitive",
+        },
+      })),
+    });
+  }
 
   if (Object.keys(filterData).length > 0) {
     andCondions.push({
-      AND: Object.keys(filterData).map(key => {
+      AND: Object.keys(filterData).map((key) => {
         let value = filterData[key];
-        if (key === 'availability' && typeof value === 'string') {
-          value = value === 'true'; 
+        if (key === "availability" && typeof value === "string") {
+          value = value === "true";
         }
-
 
         return {
           [key]: {
-            equals: value
-          }
+            equals: value,
+          },
         };
-      })
+      }),
     });
-  };
+  }
 
-  const whereConditons: Prisma.UserWhereInput = andCondions.length > 0 ? { AND: andCondions } : {};
+  const whereConditons: Prisma.UserWhereInput =
+    andCondions.length > 0 ? { AND: andCondions } : {};
   const result = await prisma.user.findMany({
-    where: whereConditons,
+    where: { ...whereConditons, donateBlood: "YES" },
     skip,
     take: limit,
-    orderBy: options.sortBy && (options.sortOrder === 'asc' || options.sortOrder === 'desc') ? (
-      options.sortBy === 'age' || options.sortBy === 'lastDonationDate' ? {
-        profile: {
-          ...(options.sortBy === 'age' && { age: options.sortOrder }),
-          ...(options.sortBy === 'lastDonationDate' && { lastDonationDate: options.sortOrder }),
+    orderBy:
+      options.sortBy &&
+      (options.sortOrder === "asc" || options.sortOrder === "desc")
+        ? options.sortBy === "age" || options.sortBy === "lastDonationDate"
+          ? {
+              profile: {
+                ...(options.sortBy === "age" && { age: options.sortOrder }),
+                ...(options.sortBy === "lastDonationDate" && {
+                  lastDonationDate: options.sortOrder,
+                }),
+              },
+            }
+          : {
+              [options.sortBy]: options.sortOrder,
+            }
+        : {
+            createdAt: "desc",
+          },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      status: true,
+      location: true,
+      bloodType: true,
+      donateBlood: true,
+      availability: true,
+      createdAt: true,
+      updatedAt: true,
+      profile: {
+        select: {
+          id: true,
+          userId: true,
+          bio: true,
+          age: true,
+          lastDonationDate: true,
+          createdAt: true,
+          updatedAt: true,
         },
-      } : {
-        [options.sortBy]: options.sortOrder,
-      }
-    ) : {
-      createdAt: 'desc',
+      },
+    },
+  });
+
+  const total = await prisma.user.count({
+    where: whereConditons,
+  });
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
+};
+
+const getSingleDonnerIntoDB = async (payload: string) => {
+  const result = await prisma.user.findUnique({
+    where: {
+      id: payload,
     },
     select: {
       id: true,
@@ -109,37 +168,17 @@ const getdonorUserIntoDB = async (params: any, options: IPaginationOptions) => {
       status: true,
       location: true,
       bloodType: true,
-      availability:true,
+      availability: true,
       createdAt: true,
       updatedAt: true,
-      profile: {
-        select: {
-          id:true,
-          userId:true,
-          bio: true,
-          age: true,
-          lastDonationDate: true,
-          createdAt: true,
-          updatedAt: true,
-        }
-      }
-    }
-  });
-
-  const total = await prisma.user.count({
-    where: whereConditons
-  });
-
-  return {
-    meta: {
-      page,
-      limit,
-      total
+      profile: true,
     },
-    data: result
-  };
+  });
+  if (!result) {
+    throw new AppError(400, "User not found !");
+  }
+  return result;
 };
-
 
 const getUserProfileIntoDB = async (payload: TToken) => {
   const result = await prisma.user.findUniqueOrThrow({
@@ -158,12 +197,14 @@ const getUserProfileIntoDB = async (payload: TToken) => {
       createdAt: true,
       updatedAt: true,
       profile: true,
-    }
-  })
+    },
+  });
   return result;
-
 };
-const UpdateUserProfileIntoDB = async (user: TToken, payload: Partial<UserProfile>) => {
+const UpdateUserProfileIntoDB = async (
+  user: TToken,
+  payload: Partial<UserProfile>
+) => {
   const result = await prisma.user.update({
     where: {
       id: user.id,
@@ -174,35 +215,30 @@ const UpdateUserProfileIntoDB = async (user: TToken, payload: Partial<UserProfil
           bio: payload.bio,
           age: payload.age,
           lastDonationDate: payload.lastDonationDate,
-        }
+        },
       },
     },
-    select:{
+    select: {
       profile: {
         select: {
-          id:true,
-          userId:true,
+          id: true,
+          userId: true,
           bio: true,
           age: true,
           lastDonationDate: true,
-          createdAt:true,
-          updatedAt:true,
-        }
-      }
-    }
-
-  })
+          createdAt: true,
+          updatedAt: true,
+        },
+      },
+    },
+  });
   return result;
-
 };
-
-
-
-
 
 export const userservise = {
   createUserIntoDB,
   getdonorUserIntoDB,
   getUserProfileIntoDB,
   UpdateUserProfileIntoDB,
+  getSingleDonnerIntoDB,
 };

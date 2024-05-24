@@ -5,66 +5,61 @@ import AppError from "../../Error/AppError";
 import httpStatus from "http-status";
 
 const DonorRequestIntoDB = async (payloadUser: TToken, Payload: Request) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      email: payloadUser.email,
+    },
+  });
 
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
 
-    const user = await prisma.user.findUnique({
-        where: {
-            email: payloadUser.email
-        }
-    })
-
-    if (!user) {
-        throw new AppError(httpStatus.NOT_FOUND, "User not found")
-    }
-    console.log(user);
-    const result = await prisma.request.create({
-        data: {
-            phoneNumber: Payload.phoneNumber,
-            hospitalName: Payload.hospitalName,
-            hospitalAddress: Payload.hospitalAddress,
-            reason: Payload.reason,
-            dateOfDonation: Payload.dateOfDonation,
-            requestStatus: RequestStatus.PENDING,
-            donor:{
-                connect: {
-                    id: Payload.donorId,
-                },
-            } as any ,
-            requester:{
-                connect: {
-                    id: user.id
-                },
-            } as any,
+  const result = await prisma.request.create({
+    data: {
+      phoneNumber: Payload.phoneNumber,
+      hospitalName: Payload.hospitalName,
+      hospitalAddress: Payload.hospitalAddress,
+      reason: Payload.reason,
+      dateOfDonation: Payload.dateOfDonation,
+      requestStatus: RequestStatus.PENDING,
+      donor: {
+        connect: {
+          id: Payload.donorId,
         },
+      } as any,
+      requester: {
+        connect: {
+          id: user.id,
+        },
+      } as any,
+    },
+    select: {
+      id: true,
+      phoneNumber: true,
+      hospitalName: true,
+      hospitalAddress: true,
+      reason: true,
+      dateOfDonation: true,
+      requestStatus: true,
+      donorId: true,
+      requesterId: true,
+      donor: {
         select: {
-            id: true,
-            phoneNumber: true,
-            hospitalName: true,
-            hospitalAddress: true,
-            reason: true,
-            dateOfDonation: true,
-            requestStatus: true,
-            donorId: true,
-            requesterId: true,
-            donor: {
-                select: {
-                    id: true,
-                    name: true,
-                    email: true,
-                    bloodType: true,
-                    location: true,
-                    availability: true,
-                    profile: true,
-                    createdAt: true,
-                    updatedAt: true,
-                }
-            }
-        }
-    }
-
-    )
-    return result;
-
+          id: true,
+          name: true,
+          email: true,
+          bloodType: true,
+          location: true,
+          availability: true,
+          profile: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      },
+    },
+  });
+  return result;
 }
 const GetDonorRequestIntoDB = async (payloadUser: TToken) => {
 
