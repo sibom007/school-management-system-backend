@@ -1,11 +1,17 @@
 import bcrypt from 'bcrypt';
 import config from "../../../config";
 import prisma from '../../../utils/prisma';
-import { BloodGroup, Prisma, Role, UserProfile } from '@prisma/client';
-import { IPaginationOptions, TUser } from './user.interface';
-import { paginationHelper } from '../../../helper/paginationHelper';
-import { userSearchAbleFields } from './user.constant';
-import { TToken } from '../Auth/auth.interface';
+import {
+  BloodGroup,
+  Prisma,
+  Role,
+  UserProfile,
+  UserStatus,
+} from "@prisma/client";
+import { IPaginationOptions, TUser } from "./user.interface";
+import { paginationHelper } from "../../../helper/paginationHelper";
+import { userSearchAbleFields } from "./user.constant";
+import { TToken } from "../Auth/auth.interface";
 import AppError from "../../Error/AppError";
 
 const createUserIntoDB = async (payload: TUser) => {
@@ -235,10 +241,72 @@ const UpdateUserProfileIntoDB = async (
   return result;
 };
 
+const GetAllUserIntoDB = async () => {
+  const user = await prisma.user.findMany({
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      bloodType: true,
+      location: true,
+      donateBlood: true,
+      profile: true,
+      status: true,
+      availability: true,
+    },
+  });
+  return user;
+};
+
+const UpdateUserStatusIntoDB = async (id: string, payload: string) => {
+  console.log(id, payload);
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: id,
+    },
+  });
+  if (!user) {
+    throw new AppError(400, "User not Found!");
+  }
+
+  const result = await prisma.user.updateMany({
+    where: { id: id },
+    data: {
+      status: payload as UserStatus,
+    },
+  });
+  return result;
+};
+const UpdateUserRoleIntoDB = async (id: string, payload: string) => {
+  console.log(id, payload);
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: id,
+    },
+  });
+  if (!user) {
+    throw new AppError(400, "User not Found!");
+  }
+
+  const result = await prisma.user.updateMany({
+    where: { id: id },
+    data: {
+      role: payload as Role,
+    },
+  });
+  return result;
+};
+
 export const userservise = {
   createUserIntoDB,
   getdonorUserIntoDB,
   getUserProfileIntoDB,
   UpdateUserProfileIntoDB,
   getSingleDonnerIntoDB,
+  GetAllUserIntoDB,
+  UpdateUserStatusIntoDB,
+  UpdateUserRoleIntoDB,
 };

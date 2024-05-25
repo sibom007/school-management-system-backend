@@ -29,7 +29,7 @@ const getdonorUser = catchAsync(async (req, res) => {
 const getSingleDonner = catchAsync(async (req, res) => {
   const result = await userservise.getSingleDonnerIntoDB(req.params.id);
   sendResponse(res, {
-    statusCode: 201,
+    statusCode: 200,
     success: true,
     message: "Profile retrieved successfully",
     data: result,
@@ -39,7 +39,7 @@ const getSingleDonner = catchAsync(async (req, res) => {
 const getUserProfile = catchAsync(async (req, res) => {
   const result = await userservise.getUserProfileIntoDB(req.user);
   sendResponse(res, {
-    statusCode: 201,
+    statusCode: 200,
     success: true,
     message: "Profile retrieved successfully",
     data: result,
@@ -51,9 +51,45 @@ const updateUserProfile = catchAsync(async (req, res) => {
   const UpdateData = req.body;
   const result = await userservise.UpdateUserProfileIntoDB(user, UpdateData);
   sendResponse(res, {
-    statusCode: 201,
+    statusCode: 200,
     success: true,
     message: "User profile updated successfully",
+    data: result,
+  });
+});
+
+const GetAllUser = catchAsync(async (req, res) => {
+  const result = await userservise.GetAllUserIntoDB();
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "User get successfully",
+    data: result,
+  });
+});
+
+const UpdateUserStatus = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  const result = await userservise.UpdateUserStatusIntoDB(id, status);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Update successfully",
+    data: result,
+  });
+});
+const UpdateUserRoleStatus = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const { role } = req.body;
+  console.log(role);
+  const result = await userservise.UpdateUserRoleIntoDB(id, role);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Update successfully",
     data: result,
   });
 });
@@ -64,4 +100,7 @@ export const UserControllers = {
   getUserProfile,
   updateUserProfile,
   getSingleDonner,
+  GetAllUser,
+  UpdateUserStatus,
+  UpdateUserRoleStatus,
 };

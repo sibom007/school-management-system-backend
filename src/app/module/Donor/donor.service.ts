@@ -61,56 +61,73 @@ const DonorRequestIntoDB = async (payloadUser: TToken, Payload: Request) => {
   });
   return result;
 }
-const GetDonorRequestIntoDB = async (payloadUser: TToken) => {
+const GivenRequestofDonorIntoDB = async (payloadUser: TToken) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      email: payloadUser.email,
+    },
+    select: {
+      donorOf: true,
+    },
+  });
 
-    const user = await prisma.user.findUnique({
-        where: {
-            email: payloadUser.email
-        }
-    })
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
 
-    if (!user) {
-        throw new AppError(httpStatus.NOT_FOUND, "User not found")
-    }
-    const result = await prisma.request.findMany({
-        where: {
-            requesterId: user.id,
+  return user;
+};
+const GetmyDonorRequestIntoDB = async (payloadUser: TToken) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      email: payloadUser.email,
+    },
+  });
 
-        }, include: {
-            requester: {
-                select: {
-                    id: true,
-                    name: true,
-                    email: true,
-                    bloodType: true,
-                    location: true,
-                    availability: true,
-                    profile: true,
-                    createdAt: true,
-                    updatedAt: true,
-                }
-            }
-        }
-    })
-    return result;
-
-}
-
-const UpdateDonorRequestIntoDB = async (id: string, payload: { status : RequestStatus }) => {
-    const result = await prisma.request.update({
-        where: {
-            id: id,
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+  const result = await prisma.request.findMany({
+    where: {
+      requesterId: user.id,
+    },
+    include: {
+      requester: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          bloodType: true,
+          location: true,
+          availability: true,
+          profile: true,
+          createdAt: true,
+          updatedAt: true,
         },
-        data:{
-            requestStatus: payload.status,
-        }
-    })  
-    return result;
+      },
+    },
+  });
+  return result;
+};
 
-}
+const UpdateDonorRequestIntoDB = async (
+  id: string,
+  payload: { status: RequestStatus }
+) => {
+  const result = await prisma.request.update({
+    where: {
+      id: id,
+    },
+    data: {
+      requestStatus: payload.status,
+    },
+  });
+  return result;
+};
 
 export const DonorRequestservice = {
-    DonorRequestIntoDB,
-    GetDonorRequestIntoDB,
-    UpdateDonorRequestIntoDB,
-}
+  DonorRequestIntoDB,
+  GetmyDonorRequestIntoDB,
+  GivenRequestofDonorIntoDB,
+  UpdateDonorRequestIntoDB,
+};

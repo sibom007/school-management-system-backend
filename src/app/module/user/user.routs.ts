@@ -29,6 +29,17 @@ router.get(
   // auth(Role.USER, Role.ADMIN),
   UserControllers.getSingleDonner
 );
+router.get("/All_user", auth(Role.ADMIN), UserControllers.GetAllUser);
+router.put(
+  "/updateUser-status/:id",
+  auth(Role.ADMIN),
+  UserControllers.UpdateUserStatus
+);
+router.put(
+  "/updateUser-role/:id",
+  auth(Role.ADMIN),
+  UserControllers.UpdateUserRoleStatus
+);
 
 
 export const UserRoutes = router;

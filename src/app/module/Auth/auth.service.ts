@@ -79,31 +79,33 @@ const refreshToken = async (token: string) => {
 
 const ChangePassword = async (payload: any, user: any) => {
     const userData = await prisma.user.findUniqueOrThrow({
-        where: {
-            email: user.email,
-            status: UserStatus.ACTIVE
-        }
-    })
-
-
-    const iscurrectPassword = await bcrypt.compare(payload.oldPassword, userData?.password);
+      where: {
+        email: user.email,
+        status: UserStatus.ACTIVE,
+      },
+    });
+    const iscurrectPassword = await bcrypt.compare(
+      payload.oldPassword,
+      userData?.password
+    );
 
     if (!iscurrectPassword) {
-        throw new AppError(httpStatus.BAD_REQUEST, "Password incorrect!")
+      throw new AppError(httpStatus.BAD_REQUEST, "Password incorrect!");
     }
 
     const hashedPassword: string = await bcrypt.hash(payload.newPassword, 12);
 
     await prisma.user.update({
-        where: {
-            email: userData.email
-        },
-        data: {
-            password: hashedPassword,
-        }
-    })
-
-    return null
+      where: {
+        email: userData.email,
+      },
+      data: {
+        password: hashedPassword,
+      },
+    });
+    const { id, name, email, status } = userData;
+    const UserData2 = { id, name, email, status };
+    return UserData2;
 
 }
 

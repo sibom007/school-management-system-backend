@@ -16,9 +16,14 @@ router.post(
     Donorcontorler.createRequestADonor
 );
 router.get(
-    '/donation-request',
-    auth(Role.USER, Role.ADMIN),
-    Donorcontorler.GetRequestofDonor
+  "/mydonation-request",
+  auth(Role.USER, Role.ADMIN),
+  Donorcontorler.GetmyRequestofDonor
+);
+router.get(
+  "/givenDonation-request",
+  auth(Role.USER, Role.ADMIN),
+  Donorcontorler.GivienRequestofDonor
 );
 router.put(
     '/donation-request/:requestId',
