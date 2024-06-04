@@ -25,6 +25,11 @@ router.get(
   UserControllers.getUserProfile
 );
 router.get(
+  "/my-profile/:id",
+  auth(Role.USER, Role.ADMIN),
+  UserControllers.getUserBYId
+);
+router.get(
   "/donner-details/:id",
   // auth(Role.USER, Role.ADMIN),
   UserControllers.getSingleDonner

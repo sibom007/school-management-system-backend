@@ -15,6 +15,7 @@ export type TUser = {
   age: number;
   role: string;
   bio: string;
+  photo: string;
   donateBlood: "YES" | "NO";
   lastDonationDate: string;
 };

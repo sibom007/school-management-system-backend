@@ -9,40 +9,48 @@ import { Secret } from "jsonwebtoken";
 import { UserStatus } from '@prisma/client';
 
 const LoginIntoDB = async (payload: Tlogin) => {
-
-    const userData = await prisma.user.findUniqueOrThrow({
-        where: {
-            email: payload.email
-        }
-    })
-
-    const currentpassword = await bcrypt.compare(payload.password, userData.password);
-    if (!currentpassword) {
-        throw new AppError(httpStatus.UNAUTHORIZED, "Password is not match",)
-    }
-
-    const token = jwtHelpers.generateToken({
-        id: userData.id,
-        name: userData.name,
-        email: userData.email,
-        role: userData.role
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: payload.email,
     },
-        config.accesToken_secret as Secret,
-        "30d"
+  });
 
-    );
+  const currentpassword = await bcrypt.compare(
+    payload.password,
+    userData.password
+  );
 
-    const refreshToken = jwtHelpers.generateToken({
-        id: userData.id,
-        name: userData.name,
-        email: userData.email,
-        role: userData.role
+  const currentemail = userData.email === payload.email;
+
+  if (!currentemail) {
+    throw new AppError(httpStatus.UNAUTHORIZED, "Email is not match");
+  }
+
+  if (!currentpassword) {
+    throw new AppError(httpStatus.UNAUTHORIZED, "Password is not match");
+  }
+  const token = jwtHelpers.generateToken(
+    {
+      id: userData.id,
+      name: userData.name,
+      email: userData.email,
+      role: userData.role,
     },
-        config.refreshToken_secret as Secret,
-        "30d"
+    config.accesToken_secret as Secret,
+    "30d"
+  );
 
-    );
-    return { token, userData, refreshToken, }
+  const refreshToken = jwtHelpers.generateToken(
+    {
+      id: userData.id,
+      name: userData.name,
+      email: userData.email,
+      role: userData.role,
+    },
+    config.refreshToken_secret as Secret,
+    "30d"
+  );
+  return { token, userData, refreshToken };
 };
 
 

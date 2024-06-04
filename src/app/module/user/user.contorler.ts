@@ -45,6 +45,15 @@ const getUserProfile = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const getUserBYId = catchAsync(async (req, res) => {
+  const result = await userservise.getUserIdIntoDB(req.params.id);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Profile retrieved successfully",
+    data: result,
+  });
+});
 
 const updateUserProfile = catchAsync(async (req, res) => {
   const user = req.user;
@@ -83,7 +92,6 @@ const UpdateUserStatus = catchAsync(async (req, res) => {
 const UpdateUserRoleStatus = catchAsync(async (req, res) => {
   const { id } = req.params;
   const { role } = req.body;
-  console.log(role);
   const result = await userservise.UpdateUserRoleIntoDB(id, role);
 
   sendResponse(res, {
@@ -103,4 +111,5 @@ export const UserControllers = {
   GetAllUser,
   UpdateUserStatus,
   UpdateUserRoleStatus,
+  getUserBYId,
 };

@@ -26,6 +26,7 @@ const createUserIntoDB = async (payload: TUser) => {
     bloodType: payload.bloodType as BloodGroup,
     location: payload.location,
     donateBlood: payload.donateBlood,
+    photo: payload.photo,
   };
 
   const email = await prisma.user.findUnique({
@@ -46,6 +47,7 @@ const createUserIntoDB = async (payload: TUser) => {
         name: true,
         email: true,
         role: true,
+        photo: true,
         bloodType: true,
         location: true,
         donateBlood: true,
@@ -171,6 +173,7 @@ const getSingleDonnerIntoDB = async (payload: string) => {
       name: true,
       email: true,
       role: true,
+      photo: true,
       status: true,
       location: true,
       bloodType: true,
@@ -186,8 +189,15 @@ const getSingleDonnerIntoDB = async (payload: string) => {
   return result;
 };
 
-const getUserProfileIntoDB = async (payload: TToken) => {
-  const result = await prisma.user.findUniqueOrThrow({
+type TUSer = {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+};
+
+const getUserProfileIntoDB = async (payload: TUSer) => {
+  const result = await prisma.user.findUnique({
     where: {
       id: payload.id,
     },
@@ -196,9 +206,11 @@ const getUserProfileIntoDB = async (payload: TToken) => {
       name: true,
       email: true,
       role: true,
-      status: true,
-      location: true,
+      photo: true,
       bloodType: true,
+      location: true,
+      donateBlood: true,
+      status: true,
       availability: true,
       createdAt: true,
       updatedAt: true,
@@ -207,6 +219,30 @@ const getUserProfileIntoDB = async (payload: TToken) => {
   });
   return result;
 };
+const getUserIdIntoDB = async (id: string) => {
+  const result = await prisma.user.findUnique({
+    where: {
+      id: id,
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      photo: true,
+      bloodType: true,
+      location: true,
+      donateBlood: true,
+      status: true,
+      availability: true,
+      createdAt: true,
+      updatedAt: true,
+      profile: true,
+    },
+  });
+  return result;
+};
+
 const UpdateUserProfileIntoDB = async (
   user: TToken,
   payload: Partial<UserProfile>
@@ -260,8 +296,6 @@ const GetAllUserIntoDB = async () => {
 };
 
 const UpdateUserStatusIntoDB = async (id: string, payload: string) => {
-  console.log(id, payload);
-
   const user = await prisma.user.findUnique({
     where: {
       id: id,
@@ -280,8 +314,6 @@ const UpdateUserStatusIntoDB = async (id: string, payload: string) => {
   return result;
 };
 const UpdateUserRoleIntoDB = async (id: string, payload: string) => {
-  console.log(id, payload);
-
   const user = await prisma.user.findUnique({
     where: {
       id: id,
@@ -309,4 +341,5 @@ export const userservise = {
   GetAllUserIntoDB,
   UpdateUserStatusIntoDB,
   UpdateUserRoleIntoDB,
+  getUserIdIntoDB,
 };
