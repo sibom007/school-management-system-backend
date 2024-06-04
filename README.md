@@ -1,4 +1,4 @@
-## Assmient-8
+## Assmient-9
 
 ## Installation
 
@@ -57,13 +57,13 @@
 
 ## [Live-link](https://assmient-8.vercel.app/)
 
-## create-user-URL:https://assmient-8.vercel.app/api/register 
-## Login-user-URL:https://assmient-8.vercel.app/api/login 
-## donor-listr-URL:https://assmient-8.vercel.app/api/donor-list
-## donation-request-URL:https://assmient-8.vercel.app/api/donation-request
-## donation-request-URL:https://assmient-8.vercel.app/api/donation-request/donnerId
-## my-profile-URL:https://assmient-8.vercel.app/api/my-profile
-## my-profile-URL:https://assmient-8.vercel.app/api/my-profile
+## create-user-URL:https://blood-donner-backend.vercel.app/api/register 
+## Login-user-URL:https://blood-donner-backend.vercel.app/api/login 
+## donor-listr-URL:https://blood-donner-backend.vercel.app/api/donor-list
+## donation-request-https://blood-donner-backend.vercel.app/api/donation-request
+## donation-request-URL:https://blood-donner-backend.vercel.app/api/donation-request/donnerId
+## my-profile-URL:https://blood-donner-backend.vercel.app/api/my-profile
+## my-profile-URL:https://blood-donner-backend.vercel.app/api/my-profile
 
 
 ## Postman Documentation
