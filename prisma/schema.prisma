@@ -4,7 +4,7 @@ generator client {
   provider = "prisma-client-js"
 }
 datasource db {
-  provider  = "postgresql"
+  provider  = "mongodb"
   url  	    = env("DATABASE_URL")
   // uncomment next line if you use Prisma <5.10
   // directUrl = env("DATABASE_URL_UNPOOLED")
@@ -12,75 +12,59 @@ datasource db {
 
 
 model User {
-  id           String      @id @default(uuid())
-  name         String
-  email        String      @unique
+  id           String      @id @default(uuid()) @map("_id")
+  name         String @unique
   password     String
   role         Role    
   photo        String?
   status       UserStatus @default(ACTIVE)
-  bloodType    BloodGroup
-  donateBlood  BloodDonate @default(NO)
-  location     String
-  availability Boolean     @default(true)
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
-  profile      UserProfile?
-  donorOf     Request[] @relation("Donor")
-  requesterOf Request[] @relation("Requester")
 }
 
-model Request {
-  id              String      @id @default(uuid())
-  donor          User       @relation("Donor", fields: [donorId], references: [id])
-  donorId        String
-  requester      User       @relation("Requester", fields: [requesterId], references: [id])
-  requesterId    String
-  phoneNumber     String
-  dateOfDonation  String
-  hospitalName    String
-  hospitalAddress String
-  reason          String
-  requestStatus   RequestStatus      @default(PENDING)
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+model Book {
+  id           String       @id @default(uuid()) @map("_id") @db.ObjectId
+  name         String
+  description  String
+  class        String
+  chapterCount Int
+  chapters     Chapter[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime    @updatedAt
 }
 
-model UserProfile {
-  id                String   @id @default(uuid())
-  userId            String   @unique
-  bio               String
-  age               Int
-  lastDonationDate  String
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  user              User     @relation(fields: [userId], references: [id])
+model Chapter {
+  id         String    @id @default(uuid()) @map("_id") @db.ObjectId
+  title      String
+  content    String
+  chapter    Int
+  bookId     String    @db.ObjectId
+  book       Book      @relation(fields: [bookId], references: [id])
+  questions  Question[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 }
 
-enum BloodGroup {
-  A_POSITIVE @map("A+")
-  B_POSITIVE @map("B+")
-  A_NEGATIVE @map("A-")
-  B_NEGATIVE @map("B-")
-  AB_POSITIVE @map("AB+")
-  AB_NEGATIVE @map("AB-")
-  O_POSITIVE @map("O+")
-  O_NEGATIVE @map("O-")
+model Question {
+  id         String    @id @default(uuid()) @map("_id") @db.ObjectId
+  question   String
+  answer     String
+  chapterId  String    @db.ObjectId
+  chapter    Chapter   @relation(fields: [chapterId], references: [id])
+  status     QuestionStatus @default(PENDING)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 }
 
-enum RequestStatus {
+enum QuestionStatus {
   PENDING
-   APPROVED
-    REJECTED
-}
-
-enum BloodDonate {
-  YES
-  NO
+  APPROVED
+  REJECTED
 }
 
 enum Role {
   USER
+  MODERATOR
   ADMIN
 }
 
