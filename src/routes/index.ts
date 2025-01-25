@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { AuthRoutes } from '../app/module/Auth/auth.routs';
 import { UserRoutes } from '../app/module/user/user.routs';
-import { DonorRoutes } from '../app/module/Donor/donor.routs';
+
 
 
 
@@ -15,10 +15,6 @@ const moduleRoutes = [
   {
     path: "/",
     route: UserRoutes,
-  },
-  {
-    path: "/",
-    route: DonorRoutes,
   },
 ];
 

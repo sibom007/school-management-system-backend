@@ -6,32 +6,12 @@ const createUser = z.object({
   name: z.string({
     required_error: "Name is required",
   }),
-  email: z
-    .string({
-      required_error: "Email is required",
-    })
-    .email("Invalid email"),
+  username: z.string({
+    required_error: "Email is required",
+  }),
   status: z.enum(["ACTIVE", "BlOCKED"]).optional(),
-  bloodType: z.enum([
-    "A_POSITIVE",
-    "B_POSITIVE",
-    "A_NEGATIVE",
-    "B_NEGATIVE",
-    "AB_POSITIVE",
-    "AB_NEGATIVE",
-    "O_POSITIVE",
-    "O_NEGATIVE",
-  ]),
-
-  location: z.string(),
 });
 
-
-
-
-
-
 export const userValidation = {
-    createUser,
-
-} 
+  createUser,
+}; 

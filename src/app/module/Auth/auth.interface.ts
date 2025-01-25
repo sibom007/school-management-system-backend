@@ -1,9 +1,9 @@
 import { Role } from "@prisma/client"
 
 export type Tlogin = {
-    email: string
-    password: string
-}
+  username: string;
+  password: string;
+};
 
 export type TToken = {
     id: string

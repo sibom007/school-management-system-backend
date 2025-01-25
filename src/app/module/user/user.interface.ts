@@ -7,24 +7,11 @@ export type Tpayload = {
 
 
 export type TUser = {
-  name: string;
+  username: string;
   email: string;
   password: string;
-  bloodType: string;
-  location: string;
-  age: number;
+  status: string;
   role: string;
-  bio: string;
   photo: string;
-  donateBlood: "YES" | "NO";
-  lastDonationDate: string;
 };
 
-
-
-export type IPaginationOptions = {
-    page?: number;
-    limit?: number;
-    sortBy?: string | undefined;
-    sortOrder?: string | undefined;
-}

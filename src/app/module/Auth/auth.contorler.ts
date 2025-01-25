@@ -10,10 +10,10 @@ const LoginUser = catchAsync(async (req, res) => {
     const {
       token: accessToken,
       userData,
-      refreshToken,
+
     } = await Authservice.LoginIntoDB(req.body);
-    const { id, email, role } = userData;
-    const userData2 = { id, role, email };
+    const { id, username, role } = userData;
+    const userData2 = { id, role, username };
 
     sendResponse(res, {
       statusCode: 200,
@@ -22,21 +22,10 @@ const LoginUser = catchAsync(async (req, res) => {
       data: {
         userData2,
         accessToken,
-        refreshToken,
       },
     });
 });
 
-const refreshToken = catchAsync(async (req, res) => {
-    const { refreshToken } = req.cookies;
-    const result = await Authservice.refreshToken(refreshToken);
-    sendResponse(res, {
-        statusCode: httpStatus.OK,
-        success: true,
-        message: "Logged in successfully!",
-        data: result
-    })
-});
 const changepassword = catchAsync(async (req: Request & { user?: any }, res: Response) => {
   const user = req.user;
   const passwords = req.body;
@@ -54,6 +43,5 @@ const changepassword = catchAsync(async (req: Request & { user?: any }, res: Res
 
 export const AuthControllers = {
     LoginUser,
-    refreshToken,
     changepassword
 };

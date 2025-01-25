@@ -11,7 +11,7 @@ import { UserStatus } from '@prisma/client';
 const LoginIntoDB = async (payload: Tlogin) => {
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
-      email: payload.email,
+      username: payload.username,
     },
   });
 
@@ -20,7 +20,7 @@ const LoginIntoDB = async (payload: Tlogin) => {
     userData.password
   );
 
-  const currentemail = userData.email === payload.email;
+  const currentemail = userData.username === payload.username;
 
   if (!currentemail) {
     throw new AppError(httpStatus.UNAUTHORIZED, "Email is not match");
@@ -32,95 +32,51 @@ const LoginIntoDB = async (payload: Tlogin) => {
   const token = jwtHelpers.generateToken(
     {
       id: userData.id,
-      name: userData.name,
-      email: userData.email,
+      username: userData.username,
+      email: userData.username,
       role: userData.role,
     },
     config.accesToken_secret as Secret,
     "30d"
   );
 
-  const refreshToken = jwtHelpers.generateToken(
-    {
-      id: userData.id,
-      name: userData.name,
-      email: userData.email,
-      role: userData.role,
-    },
-    config.refreshToken_secret as Secret,
-    "30d"
-  );
-  return { token, userData, refreshToken };
+  return { token, userData };
 };
 
-
-
-const refreshToken = async (token: string) => {
-    let decodedData;
-    try {
-        decodedData = jwtHelpers.verifyToken(token, 'abcdefghgijklmnop');
-    }
-    catch (err) {
-        throw new AppError(httpStatus.UNAUTHORIZED, "You are not authorized!")
-    }
-
-    const userData = await prisma.user.findUniqueOrThrow({
-        where: {
-            email: decodedData.email,
-            status: UserStatus.ACTIVE
-        }
-    });
-
-    const accessToken = jwtHelpers.generateToken({
-        email: userData.email,
-        role: userData.role
-    },
-        config.accesToken_secret as Secret,
-        "30d"
-    );
-
-    return {
-        accessToken,
-    };
-
-}
-
 const ChangePassword = async (payload: any, user: any) => {
-    const userData = await prisma.user.findUniqueOrThrow({
-      where: {
-        email: user.email,
-        status: UserStatus.ACTIVE,
-      },
-    });
-    const iscurrectPassword = await bcrypt.compare(
-      payload.oldPassword,
-      userData?.password
-    );
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      username: user.username,
+      status: UserStatus.ACTIVE,
+    },
+  });
+  const iscurrectPassword = await bcrypt.compare(
+    payload.oldPassword,
+    userData?.password
+  );
 
-    if (!iscurrectPassword) {
-      throw new AppError(httpStatus.BAD_REQUEST, "Password incorrect!");
-    }
+  if (!iscurrectPassword) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Password incorrect!");
+  }
 
-    const hashedPassword: string = await bcrypt.hash(payload.newPassword, 12);
+  const hashedPassword: string = await bcrypt.hash(payload.newPassword, 12);
 
-    await prisma.user.update({
-      where: {
-        email: userData.email,
-      },
-      data: {
-        password: hashedPassword,
-      },
-    });
-    const { id, name, email, status } = userData;
-    const UserData2 = { id, name, email, status };
-    return UserData2;
-
-}
+  await prisma.user.update({
+    where: {
+      username: userData.username,
+    },
+    data: {
+      password: hashedPassword,
+    },
+  });
+  const { id, username, status } = userData;
+  const UserData2 = { id, username, status };
+  return UserData2;
+};
 
 
 
 export const Authservice = {
     LoginIntoDB,
-    refreshToken,
     ChangePassword,
 }
