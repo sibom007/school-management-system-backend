@@ -6,6 +6,7 @@ import AppError from "../../Error/AppError";
 import { TUser } from "./user.interface";
 
 const createUserIntoDB = async (payload: TUser) => {
+
   const UserData = {
     username: payload.username,
     password: await bcrypt.hash(
@@ -16,28 +17,24 @@ const createUserIntoDB = async (payload: TUser) => {
     status: UserStatus.ACTIVE,
   };
 
-  const email = await prisma.user.findUnique({
+  const username = await prisma.user.findUnique({
     where: {
       username: payload.username,
     },
   });
 
-  if (email) {
-    throw new AppError(400, "Email already exist");
+  if (username) {
+    throw new AppError(400, "user already exist");
   }
 
-  const result = await prisma.$transaction(async (TC) => {
-    const user = await TC.user.create({
-      data: UserData,
-      select: {
-        id: true,
-        username: true,
-        role: true,
-      },
-    });
-
-    return { user };
+  const result = await prisma.user.create({
+    data: UserData,
+    select: {
+      username: true,
+      role: true,
+    },
   });
+
   return result;
 };
 

@@ -6,7 +6,6 @@ import { Request, Response } from 'express';
 
 
 const LoginUser = catchAsync(async (req, res) => {
-   
     const {
       token: accessToken,
       userData,

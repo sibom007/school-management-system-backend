@@ -33,7 +33,6 @@ const LoginIntoDB = async (payload: Tlogin) => {
     {
       id: userData.id,
       username: userData.username,
-      email: userData.username,
       role: userData.role,
     },
     config.accesToken_secret as Secret,
