@@ -1,25 +1,23 @@
-
-
 generator client {
   provider = "prisma-client-js"
 }
+
 datasource db {
   provider  = "mongodb"
-  url  	    = env("DATABASE_URL")
-  // uncomment next line if you use Prisma <5.10
-  // directUrl = env("DATABASE_URL_UNPOOLED")
+  url       = env("DATABASE_URL")
 }
 
-
 model User {
-  id           String      @id @default(uuid()) @map("_id")
-  username         String @unique
+  id           String      @id @default(uuid()) @map("_id") @db.ObjectId
+  username     String      @unique
   password     String
   role         Role    
   photo        String?
-  status       UserStatus @default(ACTIVE)
+  status       UserStatus  @default(ACTIVE)
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
+  books        Book[]
+  questions    Question[]
 }
 
 model Book {
@@ -28,9 +26,11 @@ model Book {
   description  String
   class        String
   chapterCount Int
-  chapters     Chapter[]
+  userId       String       @db.ObjectId
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)  
   createdAt    DateTime     @default(now())
-  updatedAt    DateTime    @updatedAt
+  updatedAt    DateTime     @updatedAt
+  chapters     Chapter[]
 }
 
 model Chapter {
@@ -46,14 +46,16 @@ model Chapter {
 }
 
 model Question {
-  id         String    @id @default(uuid()) @map("_id") @db.ObjectId
+  id         String         @id @default(uuid()) @map("_id") @db.ObjectId
   question   String
   answer     String
-  chapterId  String    @db.ObjectId
-  chapter    Chapter   @relation(fields: [chapterId], references: [id])
+  chapterId  String         @db.ObjectId
+  chapter    Chapter        @relation(fields: [chapterId], references: [id])
+  userId     String         @db.ObjectId
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)  
   status     QuestionStatus @default(PENDING)
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
 }
 
 enum QuestionStatus {
@@ -70,5 +72,5 @@ enum Role {
 
 enum UserStatus { 
   ACTIVE
-  BlOCKED
+  BLOCKED
 }

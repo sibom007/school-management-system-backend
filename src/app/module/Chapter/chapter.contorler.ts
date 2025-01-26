@@ -3,7 +3,8 @@ import sendResponse from "../../../utils/sendResponse";
 import { BookService } from "./chapter.service";
 
 const AddChapter = catchAsync(async (req, res) => {
-  const result = await BookService.AddChapterIntoDB(req.body);
+  const { token, ChapterData } = req.body;
+  const result = await BookService.AddChapterIntoDB(token, ChapterData);
   sendResponse(res, {
     statusCode: 201,
     success: true,

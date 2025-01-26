@@ -3,5 +3,8 @@ import { BookController } from "./book.contorler";
 
 const router = express.Router();
 
-router.post("/books", BookController.GetBooks);
+router.get("/books", BookController.GetBooks);
+router.post("/add-book", BookController.AddBooks);
+router.patch("/update-book", BookController.UpdateBooks);
+
 export const BookRoutes = router;
