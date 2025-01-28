@@ -1,18 +1,18 @@
 import catchAsync from "../../../utils/catchAsync";
 import sendResponse from "../../../utils/sendResponse";
-import { BookService } from "./chapter.service";
+import { ChapterService } from "./chapter.service";
 
-const AddChapter = catchAsync(async (req, res) => {
-  const { token, ChapterData } = req.body;
-  const result = await BookService.AddChapterIntoDB(token, ChapterData);
+const GetChapter = catchAsync(async (req, res) => {
+  const { token, chapterId } = req.body;
+  const result = await ChapterService.GetChapterIntoDB(token, chapterId);
   sendResponse(res, {
     statusCode: 201,
     success: true,
-    message: "User registered successfully",
+    message: "Get Chapter  successfully",
     data: result,
   });
 });
 
 export const ChapterController = {
-  AddChapter,
+  GetChapter,
 };

@@ -1,37 +1,20 @@
 import { Book, Chapter } from "@prisma/client";
 import { ITokenPayload } from "../../../types/types";
 import prisma from "../../../utils/prisma";
+import AppError from "../../Error/AppError";
 
-const AddChapterIntoDB = async (token: ITokenPayload, payload: Chapter) => {
-  const result = await prisma.$transaction(async (tr) => {
-    const createdChapter = await tr.chapter.create({
-      data: {
-        title: payload.title,
-        content: payload.content,
-        bookId: payload.bookId,
-        chapter: payload.chapter,
-      },
-    });
-
-    await tr.book.update({
-      where: {
-        id: payload.bookId,
-      },
-      data: {
-        chapters: {
-          connect: {
-            id: createdChapter.id,
-          },
-        },
-      },
-    });
-
-    return createdChapter;
+const GetChapterIntoDB = async (token: ITokenPayload, chapterId: string) => {
+  if (!token) {
+    throw new AppError(400, "Token is required");
+  }
+  const chapter = await prisma.chapter.findUniqueOrThrow({
+    where: {
+      id: chapterId,
+    },
   });
-
-  return result;
+  return chapter;
 };
 
-export const BookService = {
-  AddChapterIntoDB,
+export const ChapterService = {
+  GetChapterIntoDB,
 };

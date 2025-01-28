@@ -3,6 +3,6 @@ import { ChapterController } from "./chapter.contorler";
 
 const router = express.Router();
 
-router.post("/AddChapter", ChapterController.AddChapter);
+router.get("/get-Chapter", ChapterController.GetChapter);
 
 export const ChapterRouts = router;

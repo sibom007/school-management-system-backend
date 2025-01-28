@@ -10,6 +10,24 @@ const GetBookIntoDB = async (Token: string) => {
   const responce = await prisma.book.findMany();
   return responce;
 };
+const GetSingleBookIntoDB = async (token: string, bookId: string) => {
+  if (!token) {
+    throw new AppError(400, "Token is required");
+  }
+  if (!bookId) {
+    throw new AppError(400, "Book id is required");
+  }
+  const responce = await prisma.book.findFirst({
+    where: {
+      id: bookId,
+    },
+    include: {
+      user: true,
+      chapters: true,
+    },
+  });
+  return responce;
+};
 
 const AddBookIntoDB = async (Token: ITokenPayload, Book: Book) => {
   if (!Token) {
@@ -18,7 +36,7 @@ const AddBookIntoDB = async (Token: ITokenPayload, Book: Book) => {
 
   const user = await prisma.user.findUnique({
     where: {
-      id: Token.id,
+      id: Book.userId,
     },
   });
 
@@ -26,36 +44,18 @@ const AddBookIntoDB = async (Token: ITokenPayload, Book: Book) => {
     throw new AppError(400, "User not found");
   }
 
-  const result = await prisma.$transaction(async (tr) => {
-    const createdBook = await tr.book.create({
-      data: {
-        name: Book.name,
-        description: Book.description,
-        class: Book.class,
-        userId: user.id,
-        chapterCount: Book.chapterCount,
-      },
-    });
-
-    // Create chapters based on chapterCount
-    const chapters = [];
-    for (let i = 1; i <= Book.chapterCount; i++) {
-      const chapter = await tr.chapter.create({
-        data: {
-          title: `Chapter ${i}`,
-          bookId: createdBook.id,
-          content: `This is the content of chapter ${i}`,
-          chapter: i,
-        },
-      });
-      chapters.push(chapter);
-    }
-    return { createdBook, chapters };
+  const result = await prisma.book.create({
+    data: {
+      name: Book.name,
+      description: Book.description,
+      class: Book.class,
+      userId: user.id,
+      chapterCount: Book.chapterCount,
+    },
   });
 
   return result;
 };
-
 const UpdateBookIntoDB = async (Token: ITokenPayload, Book: Book) => {
   if (!Token) {
     throw new AppError(400, "Token is required");
@@ -88,6 +88,7 @@ const UpdateBookIntoDB = async (Token: ITokenPayload, Book: Book) => {
 
 export const BookService = {
   GetBookIntoDB,
+  GetSingleBookIntoDB,
   AddBookIntoDB,
   UpdateBookIntoDB,
 };

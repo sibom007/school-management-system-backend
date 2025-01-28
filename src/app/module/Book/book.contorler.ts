@@ -11,8 +11,23 @@ const GetBooks = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
+const GetSingleBook = catchAsync(async (req, res) => {
+  const { token, bookId } = req.query;
+  const result = await BookService.GetSingleBookIntoDB(
+    token as string,
+    bookId as string
+  );
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Book Get successfully",
+    data: result,
+  });
+});
 const AddBooks = catchAsync(async (req, res) => {
   const { token, BookData } = req.body;
+
   const result = await BookService.AddBookIntoDB(token, BookData);
   sendResponse(res, {
     statusCode: 201,
@@ -35,6 +50,7 @@ const UpdateBooks = catchAsync(async (req, res) => {
 
 export const BookController = {
   GetBooks,
+  GetSingleBook,
   AddBooks,
   UpdateBooks,
 };
