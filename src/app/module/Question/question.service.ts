@@ -12,16 +12,14 @@ const AddQuestionIntoDB = async (token: ITokenPayload, payload: Question) => {
   if (!user) {
     throw new AppError(400, "User not found");
   }
-  const result = await prisma.question.create({
-    data: {
-      question: payload.question,
-      answer: payload.answer,
-      chapterId: payload.chapterId,
-      userId: token.id,
-    },
-  });
-  return result;
+
+  return;
 };
+
+
+
+
+
 
 const QuestionChangeStatusIntoDB = async (
   token: ITokenPayload,

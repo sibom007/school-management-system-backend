@@ -23,6 +23,7 @@ const decodeToken = (token: string): JwtPayload | null => {
 
   return decoded as JwtPayload;
 };
+
 export const jwtHelpers = {
   generateToken,
   verifyToken,
