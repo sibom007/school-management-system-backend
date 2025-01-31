@@ -1,10 +1,11 @@
 import catchAsync from "../../../utils/catchAsync";
+import { getAuthToken } from "../../../utils/getAuthToken";
 import sendResponse from "../../../utils/sendResponse";
 import { QuestionService } from "./question.service";
 
 const AddQuestion = catchAsync(async (req, res) => {
-  const { token, QuestionData } = req.body;
-  const result = await QuestionService.AddQuestionIntoDB(token, QuestionData);
+  const token = getAuthToken(req);
+  const result = await QuestionService.AddQuestionIntoDB(token, req.body);
   sendResponse(res, {
     statusCode: 201,
     success: true,
@@ -12,9 +13,20 @@ const AddQuestion = catchAsync(async (req, res) => {
     data: result,
   });
 });
-
+const GetQuestion = catchAsync(async (req, res) => {
+  const chapterId = req.query.chapterId as string;
+  const token = getAuthToken(req);
+  const result = await QuestionService.GetQuestionIntoDB(token, chapterId);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Questions retrieved successfully",
+    data: result,
+  });
+});
 const QuestionChangeStatus = catchAsync(async (req, res) => {
-  const { token, QuestionData } = req.body;
+  const { QuestionData } = req.body;
+  const token = getAuthToken(req);
   const result = await QuestionService.QuestionChangeStatusIntoDB(
     token,
     QuestionData
@@ -28,8 +40,9 @@ const QuestionChangeStatus = catchAsync(async (req, res) => {
 });
 
 const DeleteQuestion = catchAsync(async (req, res) => {
-  const { token, id } = req.body;
-  const result = await QuestionService.AddQuestionIntoDB(token, id);
+  const { id } = req.body;
+  const token = getAuthToken(req);
+  const result = await QuestionService.DeleteQuestionIntoDB(token, id);
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -40,6 +53,7 @@ const DeleteQuestion = catchAsync(async (req, res) => {
 
 export const QuestionController = {
   AddQuestion,
+  GetQuestion,
   DeleteQuestion,
   QuestionChangeStatus,
 };

@@ -4,6 +4,7 @@ import { QuestionController } from "./question.contorler";
 const router = express.Router();
 
 router.post("/add-question", QuestionController.AddQuestion);
+router.get("/get-question", QuestionController.GetQuestion);
 router.patch(
   "/update-question-status",
   QuestionController.QuestionChangeStatus

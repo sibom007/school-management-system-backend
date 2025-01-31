@@ -2,32 +2,38 @@ import { Book, Chapter, Question, Role } from "@prisma/client";
 import prisma from "../../../utils/prisma";
 import { ITokenPayload } from "../../../types/types";
 import AppError from "../../Error/AppError";
+import { jwtHelpers } from "../../../helper/jwtHelpers";
+import config from "../../../config";
 
-const AddQuestionIntoDB = async (token: ITokenPayload, payload: Question) => {
-  const user = await prisma.user.findUnique({
-    where: {
-      id: token.id,
+const AddQuestionIntoDB = async (token: string, payload: Question) => {
+  const user = jwtHelpers.verifyToken(token, config.accesToken_secret!);
+  const result = await prisma.question.create({
+    data: {
+      question: payload.question,
+      answer: payload.answer,
+      chapterId: payload.chapterId,
+      userId: user.id,
+      status: "PENDING",
     },
   });
-  if (!user) {
-    throw new AppError(400, "User not found");
-  }
-
-  return;
+  return result;
 };
 
+const GetQuestionIntoDB = async (token: string, chapterId: string) => {
+  const user = jwtHelpers.verifyToken(token, config.accesToken_secret!);
+  if (!user) {
+    throw new AppError(400, "You are not authorized to perform this action");
+  }
+  const result = await prisma.question.findMany({
+    where: { chapterId: chapterId },
+  });
+  return result;
+};
 
-
-
-
-
-const QuestionChangeStatusIntoDB = async (
-  token: ITokenPayload,
-  payload: Question
-) => {
+const QuestionChangeStatusIntoDB = async (token: string, payload: Question) => {
   const user = await prisma.user.findUnique({
     where: {
-      id: token.id,
+      id: payload.userId,
     },
   });
 
@@ -48,10 +54,10 @@ const QuestionChangeStatusIntoDB = async (
   });
   return result;
 };
-const DeleteQuestionIntoDB = async (token: ITokenPayload, id: string) => {
+const DeleteQuestionIntoDB = async (token: string, id: string) => {
   const user = await prisma.user.findUnique({
     where: {
-      id: token.id,
+      id: id,
     },
   });
   if (!user) {
@@ -67,6 +73,7 @@ const DeleteQuestionIntoDB = async (token: ITokenPayload, id: string) => {
 
 export const QuestionService = {
   AddQuestionIntoDB,
+  GetQuestionIntoDB,
   QuestionChangeStatusIntoDB,
   DeleteQuestionIntoDB,
 };

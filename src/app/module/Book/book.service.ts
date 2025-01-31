@@ -3,8 +3,8 @@ import AppError from "../../Error/AppError";
 import prisma from "../../../utils/prisma";
 import { ITokenPayload } from "../../../types/types";
 
-const GetBookIntoDB = async (Token: string) => {
-  if (!Token) {
+const GetBookIntoDB = async (token: string) => {
+  if (!token) {
     throw new AppError(400, "Token is required");
   }
   const responce = await prisma.book.findMany();
@@ -29,8 +29,8 @@ const GetSingleBookIntoDB = async (token: string, bookId: string) => {
   return responce;
 };
 
-const AddBookIntoDB = async (Token: ITokenPayload, Book: Book) => {
-  if (!Token) {
+const AddBookIntoDB = async (token: string, Book: Book) => {
+  if (!token) {
     throw new AppError(400, "Token is required");
   }
 
@@ -57,21 +57,15 @@ const AddBookIntoDB = async (Token: ITokenPayload, Book: Book) => {
   return result;
 };
 
-const UpdateBookIntoDB = async (Token: ITokenPayload, Book: Book) => {
+const UpdateBookIntoDB = async (Token: string, Book: Book) => {
   if (!Token) {
     throw new AppError(400, "Token is required");
   }
-
   const user = await prisma.user.findUnique({
     where: {
-      id: Token.id,
+      id: Book.userId,
     },
   });
-
-  if (!user) {
-    throw new AppError(400, "User not found");
-  }
-
   const result = await prisma.book.update({
     where: {
       id: Book.id,
@@ -80,7 +74,7 @@ const UpdateBookIntoDB = async (Token: ITokenPayload, Book: Book) => {
       name: Book.name || undefined,
       description: Book.description || undefined,
       class: Book.class || undefined,
-      userId: user.id,
+      userId: user?.id,
       chapterCount: Book.chapterCount || undefined,
     },
   });
