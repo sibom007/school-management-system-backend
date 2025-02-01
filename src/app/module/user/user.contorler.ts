@@ -11,7 +11,17 @@ const createUser = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const GetUserById = catchAsync(async (req, res) => {
+  const result = await userservise.GetUserById(req.user);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "User get successfully",
+    data: result,
+  });
+});
 
 export const UserControllers = {
   createUser,
+  GetUserById,
 };

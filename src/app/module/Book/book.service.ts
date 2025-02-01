@@ -1,19 +1,16 @@
 import { Book } from "@prisma/client";
 import AppError from "../../Error/AppError";
 import prisma from "../../../utils/prisma";
-import { ITokenPayload } from "../../../types/types";
+import { IauthPayloadId } from "../../../types/types";
+import { getUserById } from "../../../utils/getUser";
 
-const GetBookIntoDB = async (token: string) => {
-  if (!token) {
-    throw new AppError(400, "Token is required");
-  }
+const GetBookIntoDB = async (user: IauthPayloadId) => {
+  getUserById(user.id);
   const responce = await prisma.book.findMany();
   return responce;
 };
-const GetSingleBookIntoDB = async (token: string, bookId: string) => {
-  if (!token) {
-    throw new AppError(400, "Token is required");
-  }
+const GetSingleBookIntoDB = async (user: IauthPayloadId, bookId: string) => {
+  getUserById(user.id);
   if (!bookId) {
     throw new AppError(400, "Book id is required");
   }
@@ -23,27 +20,14 @@ const GetSingleBookIntoDB = async (token: string, bookId: string) => {
     },
     include: {
       user: true,
-      chapters: true,
+      chapters: { include: { questions: { where: { status: "APPROVED" } } } },
     },
   });
   return responce;
 };
 
-const AddBookIntoDB = async (token: string, Book: Book) => {
-  if (!token) {
-    throw new AppError(400, "Token is required");
-  }
-
-  const user = await prisma.user.findUnique({
-    where: {
-      id: Book.userId,
-    },
-  });
-
-  if (!user) {
-    throw new AppError(400, "User not found");
-  }
-
+const AddBookIntoDB = async (user: IauthPayloadId, Book: Book) => {
+  getUserById(user.id);
   const result = await prisma.book.create({
     data: {
       name: Book.name,
@@ -57,15 +41,8 @@ const AddBookIntoDB = async (token: string, Book: Book) => {
   return result;
 };
 
-const UpdateBookIntoDB = async (Token: string, Book: Book) => {
-  if (!Token) {
-    throw new AppError(400, "Token is required");
-  }
-  const user = await prisma.user.findUnique({
-    where: {
-      id: Book.userId,
-    },
-  });
+const UpdateBookIntoDB = async (user: IauthPayloadId, Book: Book) => {
+  getUserById(user.id);
   const result = await prisma.book.update({
     where: {
       id: Book.id,

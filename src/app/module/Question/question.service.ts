@@ -1,12 +1,14 @@
-import { Book, Chapter, Question, Role } from "@prisma/client";
+import { Book, Chapter, Question, QuestionStatus, Role } from "@prisma/client";
 import prisma from "../../../utils/prisma";
-import { ITokenPayload } from "../../../types/types";
+
 import AppError from "../../Error/AppError";
 import { jwtHelpers } from "../../../helper/jwtHelpers";
 import config from "../../../config";
+import { IauthPayloadId } from "../../../types/types";
+import { getUserById } from "../../../utils/getUser";
 
-const AddQuestionIntoDB = async (token: string, payload: Question) => {
-  const user = jwtHelpers.verifyToken(token, config.accesToken_secret!);
+const AddQuestionIntoDB = async (user: IauthPayloadId, payload: Question) => {
+  getUserById(user.id);
   const result = await prisma.question.create({
     data: {
       question: payload.question,
@@ -19,27 +21,41 @@ const AddQuestionIntoDB = async (token: string, payload: Question) => {
   return result;
 };
 
-const GetQuestionIntoDB = async (token: string, chapterId: string) => {
-  const user = jwtHelpers.verifyToken(token, config.accesToken_secret!);
-  if (!user) {
-    throw new AppError(400, "You are not authorized to perform this action");
-  }
+const GetQuestionIntoDB = async (user: IauthPayloadId, chapterId: string) => {
+  getUserById(user.id);
   const result = await prisma.question.findMany({
-    where: { chapterId: chapterId },
+    where: { chapterId: chapterId, status: "APPROVED" },
   });
   return result;
 };
 
-const QuestionChangeStatusIntoDB = async (token: string, payload: Question) => {
-  const user = await prisma.user.findUnique({
+const GetUserQuestionIntoDB = async (
+  user: IauthPayloadId,
+  status?: QuestionStatus | ""
+) => {
+  getUserById(user.id);
+  const result = await prisma.question.findMany({
     where: {
-      id: payload.userId,
+      userId: user.id,
+      ...(status ? { status } : {}),
     },
   });
+  return result;
+};
 
-  if (!user) {
-    throw new AppError(400, "User not found");
-  }
+const GetPandingQuestionIntoDB = async (user: IauthPayloadId) => {
+  getUserById(user.id);
+  const result = await prisma.question.findMany({
+    where: { status: "PENDING" },
+  });
+  return result;
+};
+
+const QuestionChangeStatusIntoDB = async (
+  userId: IauthPayloadId,
+  payload: Question
+) => {
+  const user = await getUserById(userId.id);
 
   if (user.role !== Role.ADMIN && user.role !== Role.MODERATOR) {
     throw new AppError(400, "You are not authorized to perform this action");
@@ -54,15 +70,9 @@ const QuestionChangeStatusIntoDB = async (token: string, payload: Question) => {
   });
   return result;
 };
-const DeleteQuestionIntoDB = async (token: string, id: string) => {
-  const user = await prisma.user.findUnique({
-    where: {
-      id: id,
-    },
-  });
-  if (!user) {
-    throw new AppError(400, "User not found");
-  }
+
+const DeleteQuestionIntoDB = async (user: IauthPayloadId, id: string) => {
+  getUserById(user.id);
   const result = await prisma.question.delete({
     where: {
       id,
@@ -74,6 +84,8 @@ const DeleteQuestionIntoDB = async (token: string, id: string) => {
 export const QuestionService = {
   AddQuestionIntoDB,
   GetQuestionIntoDB,
+  GetPandingQuestionIntoDB,
   QuestionChangeStatusIntoDB,
+  GetUserQuestionIntoDB,
   DeleteQuestionIntoDB,
 };

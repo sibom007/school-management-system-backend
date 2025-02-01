@@ -7,11 +7,6 @@ declare module "express-serve-static-core" {
   }
 }
 
-interface ITokenPayload {
-  username: string;
+export interface IauthPayloadId {
   id: string;
-  role: Role;
-  id: string;
-  iat: number;
-  exp: number;
 }

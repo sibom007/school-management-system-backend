@@ -1,11 +1,9 @@
 import catchAsync from "../../../utils/catchAsync";
-import { getAuthToken } from "../../../utils/getAuthToken";
 import sendResponse from "../../../utils/sendResponse";
 import { BookService } from "./book.service";
 
 const GetBooks = catchAsync(async (req, res) => {
-  const token = getAuthToken(req);
-  const result = await BookService.GetBookIntoDB(token);
+  const result = await BookService.GetBookIntoDB(req.user);
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -16,8 +14,11 @@ const GetBooks = catchAsync(async (req, res) => {
 
 const GetSingleBook = catchAsync(async (req, res) => {
   const { bookId } = req.query;
-  const token = getAuthToken(req);
-  const result = await BookService.GetSingleBookIntoDB(token, bookId as string);
+  const result = await BookService.GetSingleBookIntoDB(
+    req.user,
+    bookId as string
+  );
+
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -27,8 +28,7 @@ const GetSingleBook = catchAsync(async (req, res) => {
 });
 const AddBooks = catchAsync(async (req, res) => {
   const { BookData } = req.body;
-  const token = getAuthToken(req);
-  const result = await BookService.AddBookIntoDB(token, BookData);
+  const result = await BookService.AddBookIntoDB(req.user, BookData);
   sendResponse(res, {
     statusCode: 201,
     success: true,
@@ -39,8 +39,7 @@ const AddBooks = catchAsync(async (req, res) => {
 
 const UpdateBooks = catchAsync(async (req, res) => {
   const { BookData } = req.body;
-  const token = getAuthToken(req);
-  const result = await BookService.UpdateBookIntoDB(token, BookData);
+  const result = await BookService.UpdateBookIntoDB(req.user, BookData);
   sendResponse(res, {
     statusCode: 201,
     success: true,

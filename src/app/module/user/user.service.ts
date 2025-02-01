@@ -4,9 +4,10 @@ import prisma from '../../../utils/prisma';
 import { Role, UserStatus } from "@prisma/client";
 import AppError from "../../Error/AppError";
 import { TUser } from "./user.interface";
+import { getUserById } from "../../../utils/getUser";
+import { IauthPayloadId } from "../../../types/types";
 
 const createUserIntoDB = async (payload: TUser) => {
-
   const UserData = {
     username: payload.username,
     password: await bcrypt.hash(
@@ -38,6 +39,12 @@ const createUserIntoDB = async (payload: TUser) => {
   return result;
 };
 
+const GetUserById = async (user: IauthPayloadId) => {
+  const result = getUserById(user.id);
+  return result;
+};
+
 export const userservise = {
   createUserIntoDB,
+  GetUserById,
 };

@@ -1,48 +1,35 @@
-import { Book, Chapter } from "@prisma/client";
-import { ITokenPayload } from "../../../types/types";
+import { Chapter } from "@prisma/client";
 import prisma from "../../../utils/prisma";
 import AppError from "../../Error/AppError";
-import { jwtHelpers } from "../../../helper/jwtHelpers";
-import config from "../../../config";
+import { IauthPayloadId } from "../../../types/types";
+import { getUserById } from "../../../utils/getUser";
 
-const GetChapterIntoDB = async (token: string, chapterId: string) => {
-  const userId = jwtHelpers.verifyToken(
-    token,
-    config.accesToken_secret!
-  ) as ITokenPayload;
-  if (!userId) {
-    throw new AppError(400, "user not found");
-  }
-
+const GetChapterIntoDB = async (user: IauthPayloadId, chapterId: string) => {
+  getUserById(user.id);
   const chapter = await prisma.chapter.findUniqueOrThrow({
     where: {
       id: chapterId,
     },
     include: {
       book: true,
-      questions: true,
+      questions: { where: { status: "APPROVED" } },
     },
   });
   return chapter;
 };
-const GetAllChapterIntoDB = async (token: string) => {
-  if (!token) {
-    throw new AppError(400, "Token is required");
-  }
+const GetAllChapterIntoDB = async (user: IauthPayloadId) => {
+  getUserById(user.id);
   const chapter = await prisma.chapter.findMany({
     include: {
       book: true,
-      questions: true,
+      questions: { where: { status: "APPROVED" } },
     },
   });
   return chapter;
 };
 
-const AddChapterIntoDB = async (token: string, payload: Chapter) => {
-  if (!token) {
-    throw new AppError(400, "Token is required");
-  }
-
+const AddChapterIntoDB = async (user: IauthPayloadId, payload: Chapter) => {
+  getUserById(user.id);
   const chapter = await prisma.chapter.create({
     data: {
       title: payload.title,

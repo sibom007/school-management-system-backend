@@ -1,11 +1,10 @@
+import { QuestionStatus } from "@prisma/client";
 import catchAsync from "../../../utils/catchAsync";
-import { getAuthToken } from "../../../utils/getAuthToken";
 import sendResponse from "../../../utils/sendResponse";
 import { QuestionService } from "./question.service";
 
 const AddQuestion = catchAsync(async (req, res) => {
-  const token = getAuthToken(req);
-  const result = await QuestionService.AddQuestionIntoDB(token, req.body);
+  const result = await QuestionService.AddQuestionIntoDB(req.user, req.body);
   sendResponse(res, {
     statusCode: 201,
     success: true,
@@ -13,10 +12,10 @@ const AddQuestion = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
 const GetQuestion = catchAsync(async (req, res) => {
   const chapterId = req.query.chapterId as string;
-  const token = getAuthToken(req);
-  const result = await QuestionService.GetQuestionIntoDB(token, chapterId);
+  const result = await QuestionService.GetQuestionIntoDB(req.user, chapterId);
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -24,11 +23,35 @@ const GetQuestion = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
+const GetUserQuestion = catchAsync(async (req, res) => {
+  const { status } = req.query;
+  const result = await QuestionService.GetUserQuestionIntoDB(
+    req.user,
+    status as QuestionStatus
+  );
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "User Questions retrieved successfully",
+    data: result,
+  });
+});
+
+const GetPandingQuestion = catchAsync(async (req, res) => {
+  const result = await QuestionService.GetPandingQuestionIntoDB(req.user);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Questions retrieved successfully",
+    data: result,
+  });
+});
+
 const QuestionChangeStatus = catchAsync(async (req, res) => {
-  const { QuestionData } = req.body;
-  const token = getAuthToken(req);
+  const QuestionData = req.body;
   const result = await QuestionService.QuestionChangeStatusIntoDB(
-    token,
+    req.user,
     QuestionData
   );
   sendResponse(res, {
@@ -40,9 +63,11 @@ const QuestionChangeStatus = catchAsync(async (req, res) => {
 });
 
 const DeleteQuestion = catchAsync(async (req, res) => {
-  const { id } = req.body;
-  const token = getAuthToken(req);
-  const result = await QuestionService.DeleteQuestionIntoDB(token, id);
+  const { id } = req.query;
+  const result = await QuestionService.DeleteQuestionIntoDB(
+    req.user,
+    id as string
+  );
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -50,10 +75,11 @@ const DeleteQuestion = catchAsync(async (req, res) => {
     data: result,
   });
 });
-
 export const QuestionController = {
   AddQuestion,
   GetQuestion,
+  GetUserQuestion,
+  GetPandingQuestion,
   DeleteQuestion,
   QuestionChangeStatus,
 };

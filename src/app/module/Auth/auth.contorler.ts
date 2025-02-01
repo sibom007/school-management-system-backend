@@ -6,41 +6,36 @@ import { Request, Response } from 'express';
 
 
 const LoginUser = catchAsync(async (req, res) => {
-    const {
-      token: accessToken,
-      userData,
-
-    } = await Authservice.LoginIntoDB(req.body);
-    const { id, username, role } = userData;
-    const userData2 = { id, role, username };
-
-    sendResponse(res, {
-      statusCode: 200,
-      success: true,
-      message: "User logged in successfully",
-      data: {
-        userData2,
-        accessToken,
-      },
-    });
+  const result = await Authservice.LoginIntoDB(res, req.body);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "User logged in successfully",
+    data: result,
+  });
+});
+const Logout = catchAsync(async (req, res) => {
+  const result = await Authservice.userLogout(res, req.user);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "User logged in successfully",
+    data: result,
+  });
 });
 
-const changepassword = catchAsync(async (req: Request & { user?: any }, res: Response) => {
-  const user = req.user;
-  const passwords = req.body;
-    const result = await Authservice.ChangePassword(passwords, user);
-    sendResponse(res, {
-        statusCode: httpStatus.OK,
-        success: true,
-        message: "Password Change successfully!",
-        data: result
-    })
+const changepassword = catchAsync(async (req: Request, res: Response) => {
+  const result = await Authservice.ChangePassword(res, req.user);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "LogOut successfully!",
+    data: result,
+  });
 });
-
-
-
 
 export const AuthControllers = {
-    LoginUser,
-    changepassword
+  LoginUser,
+  changepassword,
+  Logout,
 };
