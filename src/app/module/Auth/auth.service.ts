@@ -4,15 +4,14 @@ import AppError from "../../Error/AppError";
 import { Tlogin } from "./auth.interface";
 import bcrypt from 'bcrypt';
 import { jwtHelpers } from "../../../helper/jwtHelpers";
-import config from "../../../config";
 import { Secret } from "jsonwebtoken";
 import { UserStatus } from "@prisma/client";
-import jwt from "jsonwebtoken";
 import { Response } from "express";
 import { IauthPayloadId } from "../../../types/types";
 import { getUserById } from "../../../utils/getUser";
+import config from "../../../config";
 
-const LoginIntoDB = async (res: Response, payload: Tlogin) => {
+const LoginIntoDB = async (payload: Tlogin) => {
   try {
     const userData = await prisma.user.findUnique({
       where: {
@@ -33,29 +32,22 @@ const LoginIntoDB = async (res: Response, payload: Tlogin) => {
       throw new AppError(httpStatus.NOT_FOUND, "Incorrect password");
     }
 
-    const token = jwt.sign(
-      {
-        id: userData.id,
-      },
-      config.accesToken_secret as Secret,
-      { expiresIn: "30d" }
+    const token = jwtHelpers.generateToken(
+      { id: userData.id, role: userData.role },
+      config.accesToken_secret as string,
+      config.accesToken_secret_exparein as string
     );
 
-    res.cookie("auth_token", token, {
-      httpOnly: true, // Prevents JavaScript access (more secure)
-      secure: process.env.NODE_ENV === "production", // Only HTTPS in production
-      sameSite: "strict", // Prevents CSRF attacks
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-    });
+    const refreshToken = jwtHelpers.generateToken(
+      { id: userData.id },
+      config.refreshToken_secret as Secret,
+      config.refreshToken_secret_exparein as string
+    );
 
-    const user = {
-      id: userData.id,
-      username: userData.username,
-      role: userData.role,
-      status: userData.status,
+    return {
+      token: token,
+      refreshToken: refreshToken,
     };
-
-    return user;
   } catch (error: unknown) {
     if (error instanceof Error) {
       throw new AppError(httpStatus.UNAUTHORIZED, error.message);
@@ -64,6 +56,39 @@ const LoginIntoDB = async (res: Response, payload: Tlogin) => {
     }
   }
 };
+
+const refreshToken = async (refreshToken: string) => {
+  try {
+    if (!refreshToken) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Refresh token is required");
+    }
+    const decoded = jwtHelpers.verifyToken(
+      refreshToken,
+      config.refreshToken_secret as Secret
+    );
+
+    if (!decoded) {
+      throw new AppError(httpStatus.UNAUTHORIZED, "Invalid refresh token");
+    }
+
+    const token = jwtHelpers.generateToken(
+      { id: decoded.id, role: decoded.role },
+      config.accesToken_secret as Secret,
+      config.accesToken_secret_exparein as string
+    );
+
+    return {
+      token: token,
+    };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw new AppError(httpStatus.UNAUTHORIZED, error.message);
+    } else {
+      throw new AppError(httpStatus.UNAUTHORIZED, "An unknown error occurred");
+    }
+  }
+};
+
 const ChangePassword = async (payload: any, user: any) => {
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
@@ -104,7 +129,7 @@ const userLogout = async (res: Response, userId: IauthPayloadId) => {
     }
 
     // Clear auth cookie
-    res.clearCookie("auth_token", {
+    res.clearCookie("refreshToken", {
       httpOnly: true,
       secure: config.node_prosses === "production",
       sameSite: "strict",
@@ -121,6 +146,7 @@ const userLogout = async (res: Response, userId: IauthPayloadId) => {
 };
 export const Authservice = {
   LoginIntoDB,
+  refreshToken,
   userLogout,
   ChangePassword,
 };

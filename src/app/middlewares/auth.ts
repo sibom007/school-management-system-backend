@@ -1,6 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import config from "../../config";
-import { JwtPayload, Secret } from "jsonwebtoken";
+import {
+  JwtPayload,
+  Secret,
+  TokenExpiredError,
+  JsonWebTokenError,
+} from "jsonwebtoken";
 import httpStatus from "http-status";
 import AppError from "../Error/AppError";
 import { jwtHelpers } from "../../helper/jwtHelpers";
@@ -12,28 +17,41 @@ const auth = () => {
     next: NextFunction
   ) => {
     try {
-      // Extract token from cookies
-      const token = req.cookies.auth_token;
-
+      // Extract token from authorization header
+      const token = req.headers.authorization?.split(" ")[1]; // Format: "Bearer <token>"
       if (!token) {
         throw new AppError(httpStatus.UNAUTHORIZED, "You are not authorized!");
       }
-
       // Verify the token
       const verifiedUser = jwtHelpers.verifyToken(
         token,
         config.accesToken_secret as Secret
-      ) as JwtPayload;
+      );
 
-      if (!verifiedUser.id) {
-        throw new AppError(httpStatus.UNAUTHORIZED, "Invalid token payload!");
+      if (!verifiedUser) {
+        throw new AppError(
+          httpStatus.UNAUTHORIZED,
+          "Token expired Need to login1"
+        );
       }
 
       // Attach user ID to the request object
       req.user = { id: verifiedUser.id };
       next();
     } catch (err) {
-      next(err);
+      if (err instanceof TokenExpiredError) {
+        return next(new AppError(httpStatus.UNAUTHORIZED, "Token expired"));
+      }
+      if (err instanceof JsonWebTokenError) {
+        return next(
+          new AppError(
+            httpStatus.UNAUTHORIZED,
+            "Invalid token. Please log in again.1"
+          )
+        );
+      }
+
+      next(err); // Pass other errors to the error handler
     }
   };
 };

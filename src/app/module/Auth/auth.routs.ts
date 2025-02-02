@@ -5,6 +5,7 @@ import auth from "../../middlewares/auth";
 const router = express.Router();
 
 router.post("/login", AuthControllers.LoginUser);
+router.post("/refresh-token", AuthControllers.refreshToken);
 
 router.post("/change-password", AuthControllers.changepassword);
 router.post("/logout", auth(), AuthControllers.Logout);

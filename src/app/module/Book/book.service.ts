@@ -5,12 +5,12 @@ import { IauthPayloadId } from "../../../types/types";
 import { getUserById } from "../../../utils/getUser";
 
 const GetBookIntoDB = async (user: IauthPayloadId) => {
-  getUserById(user.id);
+  await getUserById(user.id);
   const responce = await prisma.book.findMany();
   return responce;
 };
 const GetSingleBookIntoDB = async (user: IauthPayloadId, bookId: string) => {
-  getUserById(user.id);
+  await getUserById(user.id);
   if (!bookId) {
     throw new AppError(400, "Book id is required");
   }

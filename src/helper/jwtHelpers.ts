@@ -19,17 +19,10 @@ const verifyToken = (token: string, secret: Secret) => {
 
 
 
-const decodeToken = (token: string): JwtPayload | null => {
-  const decoded = jwt.decode(token);
 
-  if (!decoded || typeof decoded !== "object") return null;
-
-  return decoded as JwtPayload;
-};
 
 
 export const jwtHelpers = {
   generateToken,
   verifyToken,
-  decodeToken,
 };
