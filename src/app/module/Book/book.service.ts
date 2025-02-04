@@ -4,13 +4,12 @@ import prisma from "../../../utils/prisma";
 import { IauthPayloadId } from "../../../types/types";
 import { getUserById } from "../../../utils/getUser";
 
-const GetBookIntoDB = async (user: IauthPayloadId) => {
-  await getUserById(user.id);
+const GetBookIntoDB = async () => {
   const responce = await prisma.book.findMany();
   return responce;
 };
-const GetSingleBookIntoDB = async (user: IauthPayloadId, bookId: string) => {
-  await getUserById(user.id);
+
+const GetSingleBookIntoDB = async (bookId: string) => {
   if (!bookId) {
     throw new AppError(400, "Book id is required");
   }
@@ -27,7 +26,6 @@ const GetSingleBookIntoDB = async (user: IauthPayloadId, bookId: string) => {
 };
 
 const AddBookIntoDB = async (user: IauthPayloadId, Book: Book) => {
-  getUserById(user.id);
   const result = await prisma.book.create({
     data: {
       name: Book.name,
@@ -42,7 +40,7 @@ const AddBookIntoDB = async (user: IauthPayloadId, Book: Book) => {
 };
 
 const UpdateBookIntoDB = async (user: IauthPayloadId, Book: Book) => {
-  getUserById(user.id);
+
   const result = await prisma.book.update({
     where: {
       id: Book.id,

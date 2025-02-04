@@ -1,11 +1,7 @@
 import { Chapter } from "@prisma/client";
 import prisma from "../../../utils/prisma";
-import AppError from "../../Error/AppError";
-import { IauthPayloadId } from "../../../types/types";
-import { getUserById } from "../../../utils/getUser";
 
-const GetChapterIntoDB = async (user: IauthPayloadId, chapterId: string) => {
-  getUserById(user.id);
+const GetChapterIntoDB = async (chapterId: string) => {
   const chapter = await prisma.chapter.findUniqueOrThrow({
     where: {
       id: chapterId,
@@ -17,8 +13,7 @@ const GetChapterIntoDB = async (user: IauthPayloadId, chapterId: string) => {
   });
   return chapter;
 };
-const GetAllChapterIntoDB = async (user: IauthPayloadId) => {
-  getUserById(user.id);
+const GetAllChapterIntoDB = async () => {
   const chapter = await prisma.chapter.findMany({
     include: {
       book: true,
@@ -28,8 +23,7 @@ const GetAllChapterIntoDB = async (user: IauthPayloadId) => {
   return chapter;
 };
 
-const AddChapterIntoDB = async (user: IauthPayloadId, payload: Chapter) => {
-  getUserById(user.id);
+const AddChapterIntoDB = async (payload: Chapter) => {
   const chapter = await prisma.chapter.create({
     data: {
       title: payload.title,

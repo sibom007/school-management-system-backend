@@ -15,7 +15,7 @@ const AddQuestion = catchAsync(async (req, res) => {
 
 const GetQuestion = catchAsync(async (req, res) => {
   const chapterId = req.query.chapterId as string;
-  const result = await QuestionService.GetQuestionIntoDB(req.user, chapterId);
+  const result = await QuestionService.GetQuestionIntoDB(chapterId);
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -39,7 +39,7 @@ const GetUserQuestion = catchAsync(async (req, res) => {
 });
 
 const GetPandingQuestion = catchAsync(async (req, res) => {
-  const result = await QuestionService.GetPandingQuestionIntoDB(req.user);
+  const result = await QuestionService.GetPandingQuestionIntoDB();
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -64,10 +64,7 @@ const QuestionChangeStatus = catchAsync(async (req, res) => {
 
 const DeleteQuestion = catchAsync(async (req, res) => {
   const { id } = req.query;
-  const result = await QuestionService.DeleteQuestionIntoDB(
-    req.user,
-    id as string
-  );
+  const result = await QuestionService.DeleteQuestionIntoDB(id as string);
   sendResponse(res, {
     statusCode: 200,
     success: true,

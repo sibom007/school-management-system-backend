@@ -3,7 +3,7 @@ import sendResponse from "../../../utils/sendResponse";
 import { BookService } from "./book.service";
 
 const GetBooks = catchAsync(async (req, res) => {
-  const result = await BookService.GetBookIntoDB(req.user);
+  const result = await BookService.GetBookIntoDB();
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -14,10 +14,7 @@ const GetBooks = catchAsync(async (req, res) => {
 
 const GetSingleBook = catchAsync(async (req, res) => {
   const { bookId } = req.query;
-  const result = await BookService.GetSingleBookIntoDB(
-    req.user,
-    bookId as string
-  );
+  const result = await BookService.GetSingleBookIntoDB(bookId as string);
 
   sendResponse(res, {
     statusCode: 200,

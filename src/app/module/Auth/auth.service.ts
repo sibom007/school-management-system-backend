@@ -119,6 +119,7 @@ const ChangePassword = async (payload: any, user: any) => {
   const UserData2 = { id, username, status };
   return UserData2;
 };
+
 const userLogout = async (res: Response, userId: IauthPayloadId) => {
   try {
     // Fetch user before proceeding
@@ -144,6 +145,7 @@ const userLogout = async (res: Response, userId: IauthPayloadId) => {
     return res.status(httpStatus.UNAUTHORIZED).json({ message });
   }
 };
+
 export const Authservice = {
   LoginIntoDB,
   refreshToken,

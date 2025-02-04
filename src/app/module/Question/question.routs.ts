@@ -17,7 +17,7 @@ router.patch(
   auth(),
   QuestionController.QuestionChangeStatus
 );
-router.delete("/delete-question", QuestionController.DeleteQuestion);
+router.delete("/delete-question", auth(), QuestionController.DeleteQuestion);
 
 
 export const QuestionRoutes = router;

@@ -1,14 +1,10 @@
-import { Book, Chapter, Question, QuestionStatus, Role } from "@prisma/client";
+import { Question, QuestionStatus, Role } from "@prisma/client";
 import prisma from "../../../utils/prisma";
-
 import AppError from "../../Error/AppError";
-import { jwtHelpers } from "../../../helper/jwtHelpers";
-import config from "../../../config";
 import { IauthPayloadId } from "../../../types/types";
 import { getUserById } from "../../../utils/getUser";
 
 const AddQuestionIntoDB = async (user: IauthPayloadId, payload: Question) => {
-  getUserById(user.id);
   const result = await prisma.question.create({
     data: {
       question: payload.question,
@@ -21,8 +17,7 @@ const AddQuestionIntoDB = async (user: IauthPayloadId, payload: Question) => {
   return result;
 };
 
-const GetQuestionIntoDB = async (user: IauthPayloadId, chapterId: string) => {
-  getUserById(user.id);
+const GetQuestionIntoDB = async (chapterId: string) => {
   const result = await prisma.question.findMany({
     where: { chapterId: chapterId, status: "APPROVED" },
   });
@@ -33,7 +28,6 @@ const GetUserQuestionIntoDB = async (
   user: IauthPayloadId,
   status?: QuestionStatus | ""
 ) => {
-  getUserById(user.id);
   const result = await prisma.question.findMany({
     where: {
       userId: user.id,
@@ -43,8 +37,7 @@ const GetUserQuestionIntoDB = async (
   return result;
 };
 
-const GetPandingQuestionIntoDB = async (user: IauthPayloadId) => {
-  getUserById(user.id);
+const GetPandingQuestionIntoDB = async () => {
   const result = await prisma.question.findMany({
     where: { status: "PENDING" },
   });
@@ -56,10 +49,10 @@ const QuestionChangeStatusIntoDB = async (
   payload: Question
 ) => {
   const user = await getUserById(userId.id);
-
   if (user.role !== Role.ADMIN && user.role !== Role.MODERATOR) {
     throw new AppError(400, "You are not authorized to perform this action");
   }
+
   const result = await prisma.question.update({
     where: {
       id: payload.id,
@@ -71,8 +64,7 @@ const QuestionChangeStatusIntoDB = async (
   return result;
 };
 
-const DeleteQuestionIntoDB = async (user: IauthPayloadId, id: string) => {
-  getUserById(user.id);
+const DeleteQuestionIntoDB = async (id: string) => {
   const result = await prisma.question.delete({
     where: {
       id,

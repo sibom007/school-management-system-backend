@@ -4,7 +4,7 @@ import { ChapterService } from "./chapter.service";
 
 const GetChapter = catchAsync(async (req, res) => {
   const chapterId = req.query.chapterId as string;
-  const result = await ChapterService.GetChapterIntoDB(req.user, chapterId);
+  const result = await ChapterService.GetChapterIntoDB(chapterId);
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -13,7 +13,7 @@ const GetChapter = catchAsync(async (req, res) => {
   });
 });
 const GetAllChapters = catchAsync(async (req, res) => {
-  const result = await ChapterService.GetAllChapterIntoDB(req.user);
+  const result = await ChapterService.GetAllChapterIntoDB();
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -23,7 +23,7 @@ const GetAllChapters = catchAsync(async (req, res) => {
 });
 
 const AddChapters = catchAsync(async (req, res) => {
-  const result = await ChapterService.AddChapterIntoDB(req.user, req.body);
+  const result = await ChapterService.AddChapterIntoDB(req.body);
   sendResponse(res, {
     statusCode: 201,
     success: true,

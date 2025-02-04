@@ -40,11 +40,60 @@ const createUserIntoDB = async (payload: TUser) => {
 };
 
 const GetUserById = async (user: IauthPayloadId) => {
-  const result = getUserById(user.id);
+  const result = await getUserById(user.id);
+  if (!result) {
+    throw new AppError(404, "User not found");
+  }
+  return result;
+};
+
+const ChangeUserRole = async (payload: { id: string; role: Role }) => {
+  const result = await prisma.user.update({
+    where: {
+      id: payload.id,
+    },
+    data: {
+      role: payload.role,
+    },
+  });
+  return result;
+};
+
+const GetAllUsersIntoDB = async (user: IauthPayloadId) => {
+  const result = await prisma.user.findMany({
+    where: {
+      NOT: {
+        id: user.id,
+      },
+    },
+    select: {
+      id: true,
+      username: true,
+      role: true,
+      status: true,
+    },
+  });
+  return result;
+};
+const UserStatusChangeIntoDB = async (payload: {
+  id: string;
+  status: UserStatus;
+}) => {
+  const result = await prisma.user.update({
+    where: {
+      id: payload.id,
+    },
+    data: {
+      status: payload.status,
+    },
+  });
   return result;
 };
 
 export const userservise = {
   createUserIntoDB,
   GetUserById,
+  ChangeUserRole,
+  GetAllUsersIntoDB,
+  UserStatusChangeIntoDB,
 };
