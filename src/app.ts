@@ -8,7 +8,10 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: [
+      "http://localhost:5173",
+      // "https://school-management-system-nine-theta.vercel.app",
+    ],
     credentials: true,
   })
 );

@@ -12,7 +12,6 @@ const createUser = catchAsync(async (req, res) => {
   });
 });
 const GetUserById = catchAsync(async (req, res) => {
-  console.log(req.user);
   const result = await userservise.GetUserById(req.user);
   sendResponse(res, {
     statusCode: 200,

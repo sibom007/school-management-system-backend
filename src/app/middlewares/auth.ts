@@ -25,7 +25,7 @@ const auth = () => {
       // Verify the token
       const verifiedUser = jwtHelpers.verifyToken(
         token,
-        config.accesToken_secret as Secret
+        config.accesToken_secret as string
       );
 
       if (!verifiedUser) {
